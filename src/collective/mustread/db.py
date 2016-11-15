@@ -16,10 +16,19 @@ def getEngine(conn_string=None, req=None):
     if req and 'mustread.engine' in req.environ:
         engine = req.environ['mustread.engine']
     else:
+        registry = getUtility(IRegistry)
         if conn_string is None:
-            registry = getUtility(IRegistry)
             conn_string = registry['collective.mustread.interfaces.IMustReadSettings.connectionstring']  # noqa
-        engine = create_engine(conn_string)
+        try:
+            audit_conn_string = registry['collective.auditlog.interfaces.IAuditLogSettings.connectionstring']  # noqa
+        except KeyError:
+            audit_conn_string = None
+        if conn_string == audit_conn_string \
+           and req and 'sa.engine' in req.environ:
+                # re-use collective.auditlog connector if possible
+                engine = req.environ['sa.engine']
+        else:
+            engine = create_engine(conn_string)
         if req:
             req.environ['mustread.engine'] = engine
     return engine

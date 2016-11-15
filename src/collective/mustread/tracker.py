@@ -1,7 +1,7 @@
 # coding=utf-8
 from collective.mustread import db
 from collective.mustread import td
-from collective.mustread.models import LogEntry
+from collective.mustread.models import ReadEntry
 from collective.mustread.utils import getUID
 from datetime import datetime
 from plone import api
@@ -59,5 +59,5 @@ def runJob(context, **data):
         if isinstance(value, str):
             data[key] = safe_unicode(value)
 
-    log = LogEntry(**data)
+    log = ReadEntry(**data)
     session.add(log)

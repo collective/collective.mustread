@@ -2,7 +2,7 @@
 from collective.mustread.db import getSession
 from collective.mustread.interfaces import IMustReadSettings
 from collective.mustread.models import Base
-from collective.mustread.models import LogEntry
+from collective.mustread.models import ReadEntry
 from collective.mustread.testing import COLLECTIVE_MUSTREAD_FUNCTIONAL_TESTING
 from collective.mustread.tracker import Tracker
 from plone import api
@@ -29,8 +29,8 @@ class tempDb(object):
         _, self.tempfilename = mkstemp()
 
     @property
-    def logs(self):
-        return self.session.query(LogEntry).all()
+    def reads(self):
+        return self.session.query(ReadEntry).all()
 
     def __enter__(self):
         self.registry = registry = getUtility(IRegistry)
@@ -70,6 +70,6 @@ class TestTrack(unittest.TestCase):
 
     def test_markread(self):
         with tempDb() as db:
-            self.assertEqual(db.logs, [])
+            self.assertEqual(db.reads, [])
             self.create_and_read_page()
-            self.assertEqual(db.logs[-1].action, 'read')
+            self.assertEqual(db.reads[-1].action, 'read')

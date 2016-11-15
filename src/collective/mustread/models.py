@@ -10,8 +10,8 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 
-class LogEntry(Base):
-    __tablename__ = 'audit'
+class ReadEntry(Base):
+    __tablename__ = 'mustread'
 
     id = Column(Integer, primary_key=True)
     user = Column(Unicode(255), nullable=True)
@@ -22,6 +22,4 @@ class LogEntry(Base):
     path = Column(String(255), nullable=True)
     site_name = Column(Unicode(255), nullable=True)
     action = Column(String(255), nullable=True)
-    field = Column(Unicode(255), nullable=True)
-    working_copy = Column(Unicode(255), nullable=True)
     info = Column(Unicode(255), nullable=True)
