@@ -1,0 +1,5 @@
+====================
+collective.mustread
+====================
+
+User documentation
