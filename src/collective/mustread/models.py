@@ -10,7 +10,7 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 
-class ReadEntry(Base):
+class MustRead(Base):
     __tablename__ = 'mustread'
 
     id = Column(Integer, primary_key=True)

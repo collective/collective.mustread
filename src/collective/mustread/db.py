@@ -1,5 +1,6 @@
 # coding=utf-8
 from plone.registry.interfaces import IRegistry
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker

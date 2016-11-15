@@ -2,7 +2,7 @@
 from collective.mustread.db import getSession
 from collective.mustread.interfaces import IMustReadSettings
 from collective.mustread.models import Base
-from collective.mustread.models import ReadEntry
+from collective.mustread.models import MustRead
 from collective.mustread.testing import COLLECTIVE_MUSTREAD_FUNCTIONAL_TESTING
 from collective.mustread.tracker import Tracker
 from plone import api
@@ -30,7 +30,7 @@ class tempDb(object):
 
     @property
     def reads(self):
-        return self.session.query(ReadEntry).all()
+        return self.session.query(MustRead).all()
 
     def __enter__(self):
         self.registry = registry = getUtility(IRegistry)
@@ -64,11 +64,11 @@ class TestTrack(unittest.TestCase):
                                  container=self.portal)
 
         tracker = Tracker()
-        tracker.hit(obj)
+        tracker.mark_read(obj)
 
         return obj
 
-    def test_markread(self):
+    def test_mark_read(self):
         with tempDb() as db:
             self.assertEqual(db.reads, [])
             self.create_and_read_page()
