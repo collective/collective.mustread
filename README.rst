@@ -50,6 +50,13 @@ Install collective.mustread by adding it to your buildout::
 
 and then running ``bin/buildout``
 
+Or use the built-in buildout::
+
+  virtualenv .
+  bin/pip install -r requirements.txt
+  bin/buildout bootstrap
+  bin/buildout
+
 
 Contribute
 ----------
