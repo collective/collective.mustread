@@ -36,7 +36,13 @@ class Tracker(object):
         self._write(**data)
 
     def has_read(self, obj, userid=None, user=None):
-        raise NotImplementedError()
+        query_filter = dict(
+            userid=self._resolve_userid(userid, user),
+            status='read',
+            uid=utils.getUID(obj),
+        )
+        result = self._read(**query_filter)
+        return bool(result.all())
 
     def who_read(self, obj, deadline=None):
         raise NotImplementedError()
@@ -59,16 +65,27 @@ class Tracker(object):
             return api.user.get_current().id
 
     def _write(self, **data):
+        session = self._get_session()
+        data = self._safe_unicode(**data)
+        record = MustRead(**data)
+        session.add(record)
+
+    def _read(self, **query_filter):
+        session = self._get_session()
+        query_filter = self._safe_unicode(**query_filter)
+        return session.query(MustRead).filter_by(**query_filter)
+
+    def _get_session(self):
         # make sure to join the transaction before we start
         session = db.getSession()
         tdata = td.get()
         if not tdata.registered:
             tdata.register(session)
+        return session
 
+    def _safe_unicode(self, **data):
         for key in data:
             value = data[key]
             if isinstance(value, str):
                 data[key] = safe_unicode(value)
-
-        record = MustRead(**data)
-        session.add(record)
+        return data
