@@ -138,6 +138,17 @@ class TestTrackerTrending(TestTracker):
         expect = [x[1] for x in sorted(self.pages, reverse=True)]
         self.assertEqual(result, expect)
 
+    def test_most_read_applies_status_filter(self):
+        for (i, page) in self.pages:
+            if not i % 2:  # only read even pages
+                continue
+            for y in range(i):
+                self.tracker.mark_read(page, userid='user%02d' % (y+1))
+        result = [p for p in self.tracker.most_read()]
+        expect = [x[1] for x in sorted(self.pages, reverse=True)
+                  if x[0] % 2]
+        self.assertEqual(result, expect)
+
     def test_most_read_limit(self):
         for (i, page) in self.pages:
             for y in range(i):  # page01 1 read, page02 2 reads, etc
