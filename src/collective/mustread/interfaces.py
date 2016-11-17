@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from plone.api.validation import at_least_one_of
-from plone.api.validation import mutually_exclusive_parameters
 from zope import schema
 from zope.i18nmessageid import MessageFactory
 from zope.interface import Interface
@@ -73,36 +71,22 @@ class ITracker(Interface):
     usernames.
     '''
 
-    @mutually_exclusive_parameters('userid', 'user')
-    def mark_read(obj, userid=None, user=None):
+    def mark_read(obj, userid=None):
         '''Mark an object as read by a user.
-
-        Arguments ``userid`` and ``user`` are mutually exclusive.
-        You can either set one or the other, but not both.
-        If no user is given, defaults to the currently logged in user.
 
         :param obj: Object to be marked as read
         :type obj: Content object (must be IUUID resolvable)
         :param userid: Userid of the user that viewed the object.
         :type userid: string
-        :param user: User object of the user that viewed the object.
-        :type user: MemberData object
         '''
 
-    @mutually_exclusive_parameters('userid', 'user')
-    def has_read(obj, userid=None, user=None):
+    def has_read(obj, userid=None):
         '''Query whether an object was read by a user.
-
-        Arguments ``userid`` and ``user`` are mutually exclusive.
-        You can either set one or the other, but not both.
-        If no user is given, defaults to the currently logged in user.
 
         :param obj: Object that should be read by user
         :type obj: Content object (must be IUUID resolvable)
         :param userid: Userid of the user that viewed the object.
         :type userid: string
-        :param user: User object of the user that viewed the object.
-        :type user: MemberData object
         :returns: Whether the user has read this content object.
         :rtype: Bool
         '''
@@ -118,9 +102,7 @@ class ITracker(Interface):
 
     #  ------- @frisi --- TO BE IMPLEMENTED ---------------------------------
 
-    @mutually_exclusive_parameters('userids', 'users')
-    @at_least_one_of('userids', 'users')
-    def must_read(obj, userids=None, users=None, deadline=None):
+    def must_read(obj, userids=None, deadline=None):
         '''
         Schedule that an object must be read by some users before a deadline.
 
@@ -131,16 +113,10 @@ class ITracker(Interface):
         tracking of 'unread' status for specific sets of users and querying
         for those via the ``who_unread`` method.
 
-        Arguments ``userids`` and ``users`` are mutually exclusive.
-        You must either set one or the other, but not both.
-        If no users are given, raises an InvalidParameterError
-
         :param obj: Object that should be read by users
         :type obj: Content object (must be IUUID resolvable)
         :param userids: Userids of the users that should view the object.
         :type userid: List
-        :param users: User objects of the users that should view the object.
-        :type users: List
         :param deadline: Deadline before which users should view the object.
         :type deadline: datetime
         '''

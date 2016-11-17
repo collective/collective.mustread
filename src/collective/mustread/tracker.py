@@ -11,20 +11,16 @@ from Products.CMFPlone.utils import safe_unicode
 from zope.interface import implementer
 
 
-class InvalidParameterError(ValueError):
-    pass
-
-
 @implementer(ITracker)
 class Tracker(object):
     '''
     Database API. See ``interfaces.ITracker`` for API contract.
     '''
 
-    def mark_read(self, obj, userid=None, user=None):
+    def mark_read(self, obj, userid=None):
         '''Mark <obj> as read.'''
         data = dict(
-            userid=self._resolve_userid(userid, user),
+            userid=self._resolve_userid(userid),
             read=datetime.utcnow(),
             status='read',
             uid=utils.getUID(obj),
@@ -35,9 +31,9 @@ class Tracker(object):
         )
         self._write(**data)
 
-    def has_read(self, obj, userid=None, user=None):
+    def has_read(self, obj, userid=None):
         query_filter = dict(
-            userid=self._resolve_userid(userid, user),
+            userid=self._resolve_userid(userid),
             status='read',
             uid=utils.getUID(obj),
         )
@@ -47,20 +43,15 @@ class Tracker(object):
     def who_read(self, obj):
         raise NotImplementedError()
 
-    def must_read(self, obj, userids=None, users=None, deadline=None):
+    def must_read(self, obj, userids=None, deadline=None):
         raise NotImplementedError()
 
     def who_unread(self, obj, force_deadline=True):
         raise NotImplementedError()
 
-    def _resolve_userid(self, userid=None, user=None):
-        if userid and user:
-            raise InvalidParameterError(
-                'You cannot specify both userid AND user')
+    def _resolve_userid(self, userid=None):
         if userid:
             return userid
-        elif user:
-            return user.id
         else:
             return api.user.get_current().id
 

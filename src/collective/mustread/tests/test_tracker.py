@@ -5,7 +5,6 @@ from collective.mustread.interfaces import ITracker
 from collective.mustread.models import Base
 from collective.mustread.models import MustRead
 from collective.mustread.testing import COLLECTIVE_MUSTREAD_FUNCTIONAL_TESTING
-from collective.mustread.tracker import InvalidParameterError
 from collective.mustread.tracker import Tracker
 from plone import api
 from plone.app.testing import login
@@ -59,8 +58,6 @@ class TestTrack(unittest.TestCase):
         self.request = self.layer['request'].clone()
         login(self.portal, TEST_USER_NAME)
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
-        self.other_user = api.user.create(email='other@foo.bar',
-                                          username='other_user')
         self.page = api.content.create(type='Document',
                                        id='page',
                                        title='Page',
@@ -76,24 +73,11 @@ class TestTrack(unittest.TestCase):
         self.assertEqual(self.db.reads[-1].status, 'read')
         self.assertEqual(self.db.reads[-1].userid, TEST_USER_ID)
 
-    def test_mark_read_params(self):
-        with self.assertRaises(InvalidParameterError):
-            self.tracker.mark_read(
-                self.page, userid='foo', user=self.other_user)
-        with self.assertRaises(AttributeError):
-            self.tracker.mark_read(self.page, user='foo')
-
     def test_mark_read_userid(self):
         self.assertEqual(self.db.reads, [])
         self.tracker.mark_read(self.page, userid='foo')
         self.assertEqual(self.db.reads[-1].status, 'read')
         self.assertEqual(self.db.reads[-1].userid, 'foo')
-
-    def test_mark_read_user(self):
-        self.assertEqual(self.db.reads, [])
-        self.tracker.mark_read(self.page, user=self.other_user)
-        self.assertEqual(self.db.reads[-1].status, 'read')
-        self.assertEqual(self.db.reads[-1].userid, self.other_user.id)
 
     def test_has_read_noread(self):
         self.assertFalse(self.tracker.has_read(self.page))
@@ -102,13 +86,6 @@ class TestTrack(unittest.TestCase):
         self.tracker.mark_read(self.page)
         self.assertTrue(self.tracker.has_read(self.page))
 
-    def test_has_read_params(self):
-        with self.assertRaises(InvalidParameterError):
-            self.tracker.has_read(
-                self.page, userid='foo', user=self.other_user)
-        with self.assertRaises(AttributeError):
-            self.tracker.has_read(self.page, user='foo')
-
     def test_has_read_userid(self):
         self.tracker.mark_read(self.page, userid='foo')
         self.assertTrue(self.tracker.has_read(self.page, userid='foo'))
@@ -116,12 +93,3 @@ class TestTrack(unittest.TestCase):
     def test_has_read_userid_other(self):
         self.tracker.mark_read(self.page)
         self.assertFalse(self.tracker.has_read(self.page, userid='foo'))
-
-    def test_has_read_user(self):
-        self.tracker.mark_read(self.page, user=self.other_user)
-        self.assertTrue(self.tracker.has_read(self.page, user=self.other_user))
-
-    def test_has_read_user_other(self):
-        self.tracker.mark_read(self.page)
-        self.assertFalse(self.tracker.has_read(
-            self.page, user=self.other_user))
