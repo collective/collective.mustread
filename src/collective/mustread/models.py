@@ -14,12 +14,13 @@ class MustRead(Base):
     __tablename__ = 'mustread'
 
     id = Column(Integer, primary_key=True)
-    user = Column(Unicode(255), nullable=True)
-    performed_on = Column(DateTime, nullable=True)
+    userid = Column(Unicode(255), nullable=True)
+    read = Column(DateTime, nullable=True)
+    deadline = Column(DateTime, nullable=True)
+    status = Column(String(255), nullable=True)
     uid = Column(String(255))
     type = Column(String(255), nullable=True)
     title = Column(Unicode(255), nullable=True)
     path = Column(String(255), nullable=True)
     site_name = Column(Unicode(255), nullable=True)
-    action = Column(String(255), nullable=True)
     info = Column(Unicode(255), nullable=True)

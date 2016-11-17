@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from plone.uuid.interfaces import IUUID
+from zope.globalrequest import getRequest
 
 
 def getUID(context):
@@ -21,10 +22,12 @@ def getUID(context):
         return ''
 
 
-def hostname(request):
+def hostname(request=None):
     '''
     stolen from the developer manual
     '''
+    if not request:
+        request = getRequest()
 
     if 'HTTP_X_FORWARDED_HOST' in request.environ:
         # Virtual host
