@@ -49,7 +49,7 @@ class tempDb(object):
         return self.session.query(MustRead).all()
 
 
-class TestTrack(unittest.TestCase):
+class TestTracker(unittest.TestCase):
 
     layer = COLLECTIVE_MUSTREAD_FUNCTIONAL_TESTING
 
@@ -120,10 +120,10 @@ class TestTrack(unittest.TestCase):
                          set(self.tracker.who_read(self.page)))
 
 
-class TestTrackTrending(TestTrack):
+class TestTrackerTrending(TestTracker):
 
     def setUp(self):
-        super(TestTrackTrending, self).setUp()
+        super(TestTrackerTrending, self).setUp()
         self.pages = [(i, api.content.create(type='Document',
                                              id='page%02d' % i,
                                              title='Page %02d' % i,
@@ -207,3 +207,7 @@ class TestTrackTrending(TestTrack):
         result = [p for p in self.tracker.most_read(days=20, limit=5)]
         expect = [x[1] for x in sorted(self.pages, reverse=True)][:5]
         self.assertEqual(result, expect)
+
+
+class TestTrackerScheduled(TestTracker):
+    '''For @frisi...'''
