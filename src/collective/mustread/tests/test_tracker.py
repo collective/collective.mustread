@@ -93,3 +93,23 @@ class TestTrack(unittest.TestCase):
     def test_has_read_userid_other(self):
         self.tracker.mark_read(self.page)
         self.assertFalse(self.tracker.has_read(self.page, userid='foo'))
+
+    def test_who_read_unread(self):
+        self.assertEqual([], self.tracker.who_read(self.page))
+
+    def test_who_read(self):
+        self.tracker.mark_read(self.page)
+        self.assertEqual([TEST_USER_ID],
+                         self.tracker.who_read(self.page))
+
+    def test_who_read_other(self):
+        self.tracker.mark_read(self.page, userid='foo')
+        self.assertEqual(['foo'],
+                         self.tracker.who_read(self.page))
+
+    def test_who_read_multi(self):
+        self.tracker.mark_read(self.page)
+        self.tracker.mark_read(self.page, userid='foo')
+        self.tracker.mark_read(self.page, userid='bar')
+        self.assertEqual(set([TEST_USER_ID, 'foo', 'bar']),
+                         set(self.tracker.who_read(self.page)))

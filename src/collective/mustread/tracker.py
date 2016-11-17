@@ -41,7 +41,12 @@ class Tracker(object):
         return bool(result.all())
 
     def who_read(self, obj):
-        raise NotImplementedError()
+        query_filter = dict(
+            status='read',
+            uid=utils.getUID(obj),
+        )
+        result = self._read(**query_filter)
+        return [x.userid for x in result.all()]
 
     def must_read(self, obj, userids=None, deadline=None):
         raise NotImplementedError()
