@@ -107,15 +107,11 @@ class ITracker(Interface):
         :rtype: Bool
         '''
 
-    def who_read(obj, deadline=None):
+    def who_read(obj):
         '''Query which users have read an object.
-
-        If deadline is given, only considers reads before that deadline.
 
         :param obj: Object that should be read by users
         :type obj: Content object (must be IUUID resolvable)
-        :param deadline: Only consider reads before the given deadline.
-        :type deadline: datetime
         :returns: Userids of all users that read the object
         :rtype: List
         '''

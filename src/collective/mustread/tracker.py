@@ -44,7 +44,7 @@ class Tracker(object):
         result = self._read(**query_filter)
         return bool(result.all())
 
-    def who_read(self, obj, deadline=None):
+    def who_read(self, obj):
         raise NotImplementedError()
 
     def must_read(self, obj, userids=None, users=None, deadline=None):
