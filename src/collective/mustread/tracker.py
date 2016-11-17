@@ -19,13 +19,13 @@ class Tracker(object):
     Database API. See ``interfaces.ITracker`` for API contract.
     '''
 
-    def mark_read(self, obj, userid=None, dt=None):
+    def mark_read(self, obj, userid=None, read_at=None):
         '''Mark <obj> as read.'''
-        if not dt:
-            dt = datetime.utcnow()
+        if not read_at:
+            read_at = datetime.utcnow()
         data = dict(
             userid=self._resolve_userid(userid),
-            read=dt,
+            read_at=read_at,
             status='read',
             uid=utils.getUID(obj),
             type=obj.portal_type,
@@ -58,8 +58,8 @@ class Tracker(object):
                               func.count(MustRead.userid),
                               MustRead.title)
         if days:
-            dt = datetime.utcnow() - timedelta(days=days)
-            query = query.filter(MustRead.read >= dt)
+            read_at = datetime.utcnow() - timedelta(days=days)
+            query = query.filter(MustRead.read_at >= read_at)
         query = query.filter(MustRead.status == 'read')\
                      .group_by(MustRead.uid)\
                      .order_by(func.count(MustRead.userid).desc())\

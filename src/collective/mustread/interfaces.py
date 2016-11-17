@@ -71,17 +71,25 @@ class ITracker(Interface):
     usernames.
     '''
 
-    def mark_read(obj, userid=None):
+    def mark_read(obj, userid=None, read_at=None):
         '''Mark an object as read by a user.
+
+        If userid is None, defaults to currently logged-in user.
+
+        If read_at is None, defaults to now.
 
         :param obj: Object to be marked as read
         :type obj: Content object (must be IUUID resolvable)
         :param userid: Userid of the user that viewed the object.
         :type userid: string
+        :param read_at: Datetime at which the user read the object.
+        :type read_at: datetime
         '''
 
     def has_read(obj, userid=None):
         '''Query whether an object was read by a user.
+
+        If userid is None, defaults to currently logged-in user.
 
         :param obj: Object that should be read by user
         :type obj: Content object (must be IUUID resolvable)
@@ -120,7 +128,7 @@ class ITracker(Interface):
 
     #  ------- @frisi --- TO BE IMPLEMENTED ---------------------------------
 
-    def must_read(obj, userids=None, deadline=None):
+    def must_read(obj, userids, deadline=None):
         '''
         Schedule that an object must be read by some users before a deadline.
 

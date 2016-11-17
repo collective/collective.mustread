@@ -152,11 +152,12 @@ class TestTrackerTrending(TestTracker):
         longago = today - datetime.timedelta(days=10)
         for (i, page) in self.pages:
             if i % 2:  # even
-                dt = yesterday
+                read_at = yesterday
             else:  # odd
-                dt = longago
+                read_at = longago
             for y in range(i):  # page01 1 read, page02 2 reads, etc
-                self.tracker.mark_read(page, userid='user%02d' % (y+1), dt=dt)
+                self.tracker.mark_read(page, userid='user%02d' % (y+1),
+                                       read_at=read_at)
         result = [p for p in self.tracker.most_read(days=3)]
         expect = [x[1] for x in sorted(self.pages, reverse=True)
                   if x[0] % 2]
@@ -168,11 +169,12 @@ class TestTrackerTrending(TestTracker):
         longago = today - datetime.timedelta(days=10)
         for (i, page) in self.pages:
             if i % 2:  # even
-                dt = yesterday
+                read_at = yesterday
             else:  # odd
-                dt = longago
+                read_at = longago
             for y in range(i):  # page01 1 read, page02 2 reads, etc
-                self.tracker.mark_read(page, userid='user%02d' % (y+1), dt=dt)
+                self.tracker.mark_read(page, userid='user%02d' % (y+1),
+                                       read_at=read_at)
         result = [p for p in self.tracker.most_read(days=3, limit=3)]
         expect = [x[1] for x in sorted(self.pages, reverse=True)
                   if x[0] % 2][:3]
@@ -184,11 +186,12 @@ class TestTrackerTrending(TestTracker):
         longago = today - datetime.timedelta(days=10)
         for (i, page) in self.pages:
             if i % 2:  # even
-                dt = yesterday
+                read_at = yesterday
             else:  # odd
-                dt = longago
+                read_at = longago
             for y in range(i):  # page01 1 read, page02 2 reads, etc
-                self.tracker.mark_read(page, userid='user%02d' % (y+1), dt=dt)
+                self.tracker.mark_read(page, userid='user%02d' % (y+1),
+                                       read_at=read_at)
         result = [p for p in self.tracker.most_read(days=20)]
         expect = [x[1] for x in sorted(self.pages, reverse=True)]
         self.assertEqual(result, expect)
@@ -199,11 +202,12 @@ class TestTrackerTrending(TestTracker):
         longago = today - datetime.timedelta(days=10)
         for (i, page) in self.pages:
             if i % 2:  # even
-                dt = yesterday
+                read_at = yesterday
             else:  # odd
-                dt = longago
+                read_at = longago
             for y in range(i):  # page01 1 read, page02 2 reads, etc
-                self.tracker.mark_read(page, userid='user%02d' % (y+1), dt=dt)
+                self.tracker.mark_read(page, userid='user%02d' % (y+1),
+                                       read_at=read_at)
         result = [p for p in self.tracker.most_read(days=20, limit=5)]
         expect = [x[1] for x in sorted(self.pages, reverse=True)][:5]
         self.assertEqual(result, expect)
