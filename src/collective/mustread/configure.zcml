@@ -10,6 +10,7 @@
 
   <include package=".browser" />
 
+  <utility factory=".tracker.Tracker" />
 
   <genericsetup:registerProfile
       name="default"
@@ -28,7 +29,6 @@
       provides="Products.GenericSetup.interfaces.EXTENSION"
       post_handler=".setuphandlers.uninstall"
       />
-
 
   <utility
       factory=".setuphandlers.HiddenProfiles"

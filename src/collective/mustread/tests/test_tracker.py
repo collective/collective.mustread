@@ -67,6 +67,10 @@ class TestTrack(unittest.TestCase):
     def test_interface(self):
         self.assertTrue(verifyObject(ITracker, Tracker()))
 
+    def test_utility(self):
+        tracker = getUtility(ITracker)
+        self.assertTrue(verifyObject(ITracker, tracker))
+
     def test_mark_read(self):
         self.assertEqual(self.db.reads, [])
         self.tracker.mark_read(self.page)
