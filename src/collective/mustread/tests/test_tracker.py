@@ -16,6 +16,7 @@ from tempfile import mkstemp
 from zope.component import getUtility
 from zope.interface.verify import verifyObject
 
+import datetime
 import os
 import unittest
 
@@ -117,3 +118,92 @@ class TestTrack(unittest.TestCase):
         self.tracker.mark_read(self.page, userid='bar')
         self.assertEqual(set([TEST_USER_ID, 'foo', 'bar']),
                          set(self.tracker.who_read(self.page)))
+
+
+class TestTrackTrending(TestTrack):
+
+    def setUp(self):
+        super(TestTrackTrending, self).setUp()
+        self.pages = [(i, api.content.create(type='Document',
+                                             id='page%02d' % i,
+                                             title='Page %02d' % i,
+                                             container=self.portal))
+                      for i in range(1, 10)]
+
+    def test_most_read(self):
+        for (i, page) in self.pages:
+            for y in range(i):  # page01 1 read, page02 2 reads, etc
+                self.tracker.mark_read(page, userid='user%02d' % (y+1))
+        result = [p for p in self.tracker.most_read()]
+        expect = [x[1] for x in sorted(self.pages, reverse=True)]
+        self.assertEqual(result, expect)
+
+    def test_most_read_limit(self):
+        for (i, page) in self.pages:
+            for y in range(i):  # page01 1 read, page02 2 reads, etc
+                self.tracker.mark_read(page, userid='user%02d' % (y+1))
+        result = [p for p in self.tracker.most_read(limit=5)]
+        expect = [x[1] for x in sorted(self.pages, reverse=True)][:5]
+        self.assertEqual(result, expect)
+
+    def test_most_read_dates(self):
+        today = datetime.datetime.utcnow() - datetime.timedelta(hours=1)
+        yesterday = today - datetime.timedelta(days=1)
+        longago = today - datetime.timedelta(days=10)
+        for (i, page) in self.pages:
+            if i % 2:  # even
+                dt = yesterday
+            else:  # odd
+                dt = longago
+            for y in range(i):  # page01 1 read, page02 2 reads, etc
+                self.tracker.mark_read(page, userid='user%02d' % (y+1), dt=dt)
+        result = [p for p in self.tracker.most_read(days=3)]
+        expect = [x[1] for x in sorted(self.pages, reverse=True)
+                  if x[0] % 2]
+        self.assertEqual(result, expect)
+
+    def test_most_read_dates_limit(self):
+        today = datetime.datetime.utcnow() - datetime.timedelta(hours=1)
+        yesterday = today - datetime.timedelta(days=1)
+        longago = today - datetime.timedelta(days=10)
+        for (i, page) in self.pages:
+            if i % 2:  # even
+                dt = yesterday
+            else:  # odd
+                dt = longago
+            for y in range(i):  # page01 1 read, page02 2 reads, etc
+                self.tracker.mark_read(page, userid='user%02d' % (y+1), dt=dt)
+        result = [p for p in self.tracker.most_read(days=3, limit=3)]
+        expect = [x[1] for x in sorted(self.pages, reverse=True)
+                  if x[0] % 2][:3]
+        self.assertEqual(result, expect)
+
+    def test_most_read_dates_verylongago(self):
+        today = datetime.datetime.utcnow() - datetime.timedelta(hours=1)
+        yesterday = today - datetime.timedelta(days=1)
+        longago = today - datetime.timedelta(days=10)
+        for (i, page) in self.pages:
+            if i % 2:  # even
+                dt = yesterday
+            else:  # odd
+                dt = longago
+            for y in range(i):  # page01 1 read, page02 2 reads, etc
+                self.tracker.mark_read(page, userid='user%02d' % (y+1), dt=dt)
+        result = [p for p in self.tracker.most_read(days=20)]
+        expect = [x[1] for x in sorted(self.pages, reverse=True)]
+        self.assertEqual(result, expect)
+
+    def test_most_read_dates_verylongago_limit(self):
+        today = datetime.datetime.utcnow() - datetime.timedelta(hours=1)
+        yesterday = today - datetime.timedelta(days=1)
+        longago = today - datetime.timedelta(days=10)
+        for (i, page) in self.pages:
+            if i % 2:  # even
+                dt = yesterday
+            else:  # odd
+                dt = longago
+            for y in range(i):  # page01 1 read, page02 2 reads, etc
+                self.tracker.mark_read(page, userid='user%02d' % (y+1), dt=dt)
+        result = [p for p in self.tracker.most_read(days=20, limit=5)]
+        expect = [x[1] for x in sorted(self.pages, reverse=True)][:5]
+        self.assertEqual(result, expect)

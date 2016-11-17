@@ -8,6 +8,9 @@ from zope.component import getUtility
 from zope.globalrequest import getRequest
 
 
+DEBUG = False
+
+
 def getEngine(conn_string=None, req=None):
     """
     cache this on the request object
@@ -29,7 +32,7 @@ def getEngine(conn_string=None, req=None):
                 # re-use collective.auditlog connector if possible
                 engine = req.environ['sa.engine']
         else:
-            engine = create_engine(conn_string)
+            engine = create_engine(conn_string, echo=DEBUG)
         if req:
             req.environ['mustread.engine'] = engine
     return engine

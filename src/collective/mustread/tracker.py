@@ -6,8 +6,10 @@ from collective.mustread.interfaces import ITracker
 from collective.mustread.models import MustRead
 
 from datetime import datetime
+from datetime import timedelta
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
+from sqlalchemy import func
 from zope.interface import implementer
 
 
@@ -17,11 +19,13 @@ class Tracker(object):
     Database API. See ``interfaces.ITracker`` for API contract.
     '''
 
-    def mark_read(self, obj, userid=None):
+    def mark_read(self, obj, userid=None, dt=None):
         '''Mark <obj> as read.'''
+        if not dt:
+            dt = datetime.utcnow()
         data = dict(
             userid=self._resolve_userid(userid),
-            read=datetime.utcnow(),
+            read=dt,
             status='read',
             uid=utils.getUID(obj),
             type=obj.portal_type,
@@ -47,6 +51,21 @@ class Tracker(object):
         )
         result = self._read(**query_filter)
         return [x.userid for x in result.all()]
+
+    def most_read(self, days=None, limit=None):
+        session = self._get_session()
+        query = session.query(MustRead.uid,
+                              func.count(MustRead.userid),
+                              MustRead.title)
+        if days:
+            dt = datetime.utcnow() - timedelta(days=days)
+            query = query.filter(MustRead.read >= dt)
+        query = query.filter(MustRead.status == 'read')\
+                     .group_by(MustRead.uid)\
+                     .order_by(func.count(MustRead.userid).desc())\
+                     .limit(limit)
+        for record in query.all():
+            yield api.content.get(UID=record.uid)
 
     def must_read(self, obj, userids=None, deadline=None):
         raise NotImplementedError()
