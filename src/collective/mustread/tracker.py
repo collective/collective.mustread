@@ -70,7 +70,7 @@ class Tracker(object):
         for record in query.all():
             yield api.content.get(UID=record.uid)
 
-    def must_read(self, obj, userids=None, deadline=None):
+    def schedule_must_read(self, obj, userids=None, deadline=None):
         raise NotImplementedError()
 
     def who_unread(self, obj, force_deadline=True):

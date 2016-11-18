@@ -132,7 +132,7 @@ class ITracker(Interface):
 
     #  ------- @frisi --- TO BE IMPLEMENTED ---------------------------------
 
-    def must_read(obj, userids, deadline=None):
+    def schedule_must_read(obj, userids, deadline=None):
         '''
         Schedule that an object must be read by some users before a deadline.
 
