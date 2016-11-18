@@ -7,17 +7,17 @@
   <include package="plone.behavior" file="meta.zcml" />
 
   <plone:behavior
-      title="Track Reads"
-      description="Track initial view for each user on all enabled content objects"
-      provides=".track.ITrackReads"
-      factory=".track.TrackReads"
+      title="Track Read Enabled"
+      description="Marker interface to indicate that the initial view on this object should be tracked for each user"
+      provides=".track.ITrackReadEnabled"
+      factory=".track.TrackReadEnabled"
       for="plone.dexterity.interfaces.IDexterityContent"
       />
 
   <plone:behavior
       title="Maybe Must Read"
       description="Per-content object choice whether this object MUST be read"
-      provides=".maybe.IMustRead"
+      provides=".maybe.IMaybeMustRead"
       for="plone.dexterity.interfaces.IDexterityContent"
       />
   

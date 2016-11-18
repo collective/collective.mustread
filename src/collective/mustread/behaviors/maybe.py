@@ -7,7 +7,7 @@ from zope.interface import provider
 
 
 @provider(IFormFieldProvider)
-class IMustRead(model.Schema):
+class IMaybeMustRead(model.Schema):
     """
     Choice whether this object MUST be read.
 

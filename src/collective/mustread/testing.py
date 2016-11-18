@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from collective.mustread.behaviors.maybe import IMustRead
-from collective.mustread.behaviors.track import ITrackReads
+from collective.mustread.behaviors.maybe import IMaybeMustRead
+from collective.mustread.behaviors.track import ITrackReadEnabled
 from collective.mustread.db import getSession
 from collective.mustread.interfaces import IMustReadSettings
 from collective.mustread.models import Base
@@ -39,7 +39,7 @@ import unittest
 @implementer(IBehaviorAssignable)
 class TestingAssignable(object):
 
-    enabled = [ITrackReads, IMustRead]
+    enabled = [ITrackReadEnabled, IMaybeMustRead]
 
     def __init__(self, context):
         self.context = context
