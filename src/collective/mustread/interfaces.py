@@ -35,6 +35,17 @@ class IMustReadSettings(Interface):
     )
 
 
+class ITrackReadEnabledMarker(Interface):
+    '''
+    Marker interface for content objects that have the
+    .behaviors.tracker.ITrackReadEnabled behavior.
+
+    This is needed so we can bind the @@mustread-hit view
+    to the marker interface. See:
+    http://docs.plone.org/external/plone.app.dexterity/docs/behaviors/providing-marker-interfaces.html
+    '''
+
+
 class ITracker(Interface):
     '''
     Database API.

@@ -11,6 +11,7 @@
       description="Marker interface to indicate that the initial view on this object should be tracked for each user"
       provides=".track.ITrackReadEnabled"
       factory=".track.TrackReadEnabled"
+      marker="..interfaces.ITrackReadEnabledMarker"
       for="plone.dexterity.interfaces.IDexterityContent"
       />
 

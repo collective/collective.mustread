@@ -44,7 +44,6 @@ setup(
         'Products.GenericSetup>=1.8.2',
         'setuptools',
         'sqlalchemy',
-        'z3c.jbot',
         'zope.schema',
         'zope.interface',
         'zope.component',

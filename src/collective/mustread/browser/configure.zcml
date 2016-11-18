@@ -4,18 +4,12 @@
     xmlns:plone="http://namespaces.plone.org/plone"
     i18n_domain="collective.mustread">
 
-  <!-- Set overrides folder for Just-a-Bunch-Of-Templates product -->
-  <include package="z3c.jbot" file="meta.zcml" />
-  <browser:jbot
-      directory="overrides"
-      layer="collective.mustread.interfaces.ICollectiveMustreadLayer"
-      />
-
-  <!-- Publish static files -->
-  <plone:static
-      name="collective.mustread"
-      type="plone"
-      directory="static"
+  <browser:page
+      for="..interfaces.ITrackReadEnabledMarker"
+      name="mustread-hit"
+      class=".hit.Hit"
+      permission="zope2.View"
+      layer="..interfaces.ICollectiveMustreadLayer"
       />
 
 </configure>
