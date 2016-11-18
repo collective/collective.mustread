@@ -21,6 +21,9 @@ class Tracker(object):
 
     def mark_read(self, obj, userid=None, read_at=None):
         '''Mark <obj> as read.'''
+        # block anon
+        if not userid and api.user.is_anonymous():
+            return
         # avoid database writes by only storing first read actions
         if self.has_read(obj, userid):
             return
@@ -39,6 +42,9 @@ class Tracker(object):
         self._write(**data)
 
     def has_read(self, obj, userid=None):
+        # block anon
+        if not userid and api.user.is_anonymous():
+            return False
         query_filter = dict(
             userid=self._resolve_userid(userid),
             status='read',

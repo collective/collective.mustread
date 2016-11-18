@@ -3,6 +3,7 @@ from collective.mustread.interfaces import ITracker
 from collective.mustread.testing import FunctionalBaseTestCase
 from collective.mustread.tracker import Tracker
 from plone import api
+from plone.app.testing import logout
 from plone.app.testing import TEST_USER_ID
 from zope.component import getUtility
 from zope.interface.verify import verifyObject
@@ -37,6 +38,16 @@ class TestTracker(FunctionalBaseTestCase):
         self.tracker.mark_read(self.page, read_at=read_at)
         self.tracker.mark_read(self.page)
         self.assertEqual(1, len(self.db.reads))
+
+    def test_mark_read_anon(self):
+        logout()
+        self.tracker.mark_read(self.page)
+        self.assertEqual(self.db.reads, [])
+
+    def test_has_read_anon(self):
+        logout()
+        self.tracker.mark_read(self.page)
+        self.assertFalse(self.tracker.has_read(self.page))
 
     def test_has_read_noread(self):
         self.assertFalse(self.tracker.has_read(self.page))
