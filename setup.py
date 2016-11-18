@@ -38,12 +38,16 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
+        'five.globalrequest',
         'plone.api',
+        'plone.behavior',
         'Products.GenericSetup>=1.8.2',
         'setuptools',
-        'z3c.jbot',
         'sqlalchemy',
-        'five.globalrequest'
+        'z3c.jbot',
+        'zope.schema',
+        'zope.interface',
+        'zope.component',
     ],
     extras_require={
         'test': [

@@ -1,72 +1,16 @@
 # coding=utf-8
-from collective.mustread.db import getSession
-from collective.mustread.interfaces import IMustReadSettings
 from collective.mustread.interfaces import ITracker
-from collective.mustread.models import Base
-from collective.mustread.models import MustRead
-from collective.mustread.testing import COLLECTIVE_MUSTREAD_FUNCTIONAL_TESTING
+from collective.mustread.testing import FunctionalBaseTestCase
 from collective.mustread.tracker import Tracker
 from plone import api
-from plone.app.testing import login
-from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
-from plone.app.testing import TEST_USER_NAME
-from plone.registry.interfaces import IRegistry
-from tempfile import mkstemp
 from zope.component import getUtility
 from zope.interface.verify import verifyObject
 
 import datetime
-import os
-import unittest
 
 
-class tempDb(object):
-
-    registry_key = '{iface}.connectionstring'.format(
-        iface=IMustReadSettings.__identifier__
-    )
-    session = None
-
-    def __init__(self):
-        _, self.tempfilename = mkstemp()
-        self.registry = registry = getUtility(IRegistry)
-        registry[self.registry_key] = (
-            u'sqlite:///%s?check_same_thread=true' % (self.tempfilename)
-        )
-        self.session = getSession()
-        Base.metadata.create_all(self.session.bind.engine)
-
-    def __del__(self):
-        try:
-            os.remove(self.tempfilename)
-        except OSError:
-            # __del__ is called more than once...
-            pass
-
-    @property
-    def reads(self):
-        return self.session.query(MustRead).all()
-
-
-class TrackerTestBase(unittest.TestCase):
-
-    layer = COLLECTIVE_MUSTREAD_FUNCTIONAL_TESTING
-
-    def setUp(self):
-        self.db = tempDb()  # auto teardown via __del__
-        self.portal = self.layer['portal']
-        self.request = self.layer['request'].clone()
-        login(self.portal, TEST_USER_NAME)
-        setRoles(self.portal, TEST_USER_ID, ['Manager'])
-        self.page = api.content.create(type='Document',
-                                       id='page',
-                                       title='Page',
-                                       container=self.portal)
-        self.tracker = Tracker()
-
-
-class TestTracker(TrackerTestBase):
+class TestTracker(FunctionalBaseTestCase):
 
     def test_interface(self):
         self.assertTrue(verifyObject(ITracker, Tracker()))
@@ -130,7 +74,7 @@ class TestTracker(TrackerTestBase):
                          set(self.tracker.who_read(self.page)))
 
 
-class TestTrackerTrending(TrackerTestBase):
+class TestTrackerTrending(FunctionalBaseTestCase):
 
     def setUp(self):
         super(TestTrackerTrending, self).setUp()
@@ -234,5 +178,5 @@ class TestTrackerTrending(TrackerTestBase):
         self.assertEqual(result, expect)
 
 
-class TestTrackerScheduled(TrackerTestBase):
+class TestTrackerScheduled(FunctionalBaseTestCase):
     '''For @frisi...'''
