@@ -78,6 +78,10 @@ class ITracker(Interface):
 
         If read_at is None, defaults to now.
 
+        If the object was already marked read for this user,
+        calling ``mark_read`` again will have no effect and avoids
+        a database write.
+
         :param obj: Object to be marked as read
         :type obj: Content object (must be IUUID resolvable)
         :param userid: Userid of the user that viewed the object.

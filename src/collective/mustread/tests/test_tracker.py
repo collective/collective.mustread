@@ -49,7 +49,7 @@ class tempDb(object):
         return self.session.query(MustRead).all()
 
 
-class TestTracker(unittest.TestCase):
+class TrackerTestBase(unittest.TestCase):
 
     layer = COLLECTIVE_MUSTREAD_FUNCTIONAL_TESTING
 
@@ -64,6 +64,9 @@ class TestTracker(unittest.TestCase):
                                        title='Page',
                                        container=self.portal)
         self.tracker = Tracker()
+
+
+class TestTracker(TrackerTestBase):
 
     def test_interface(self):
         self.assertTrue(verifyObject(ITracker, Tracker()))
@@ -83,6 +86,13 @@ class TestTracker(unittest.TestCase):
         self.tracker.mark_read(self.page, userid='foo')
         self.assertEqual(self.db.reads[-1].status, 'read')
         self.assertEqual(self.db.reads[-1].userid, 'foo')
+
+    def test_mark_read_only_once(self):
+        read_at = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+        self.assertEqual(self.db.reads, [])
+        self.tracker.mark_read(self.page, read_at=read_at)
+        self.tracker.mark_read(self.page)
+        self.assertEqual(1, len(self.db.reads))
 
     def test_has_read_noread(self):
         self.assertFalse(self.tracker.has_read(self.page))
@@ -120,7 +130,7 @@ class TestTracker(unittest.TestCase):
                          set(self.tracker.who_read(self.page)))
 
 
-class TestTrackerTrending(TestTracker):
+class TestTrackerTrending(TrackerTestBase):
 
     def setUp(self):
         super(TestTrackerTrending, self).setUp()
@@ -224,5 +234,5 @@ class TestTrackerTrending(TestTracker):
         self.assertEqual(result, expect)
 
 
-class TestTrackerScheduled(TestTracker):
+class TestTrackerScheduled(TrackerTestBase):
     '''For @frisi...'''

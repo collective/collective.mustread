@@ -21,6 +21,9 @@ class Tracker(object):
 
     def mark_read(self, obj, userid=None, read_at=None):
         '''Mark <obj> as read.'''
+        # avoid database writes by only storing first read actions
+        if self.has_read(obj, userid):
+            return
         if not read_at:
             read_at = datetime.utcnow()
         data = dict(
