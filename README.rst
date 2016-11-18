@@ -6,37 +6,100 @@
 collective.mustread
 ==============================================================================
 
-Tell me what your product does
+Track reads on content objects in Plone.
 
 Features
+========
+
+- Keep a record of first reads of content objects per user
+
+- Query if a specific user has read a specific content object
+
+- List top-x of content objects by user reads in a specific time window
+
+
+Limitations
+-----------
+
+This is not a install-and-forget plugin for Plone.
+
+This product *does not track reads out of the box*.
+It merely provides a backend you can use for doing so.
+
+Development of this backend was sponsored by Quaive.
+Quaive has it's own frontend integration on top of this backend to cater for the specific use cases Quaive needs. We hope that this generic backend is useful for other Plone projects as well.
+
+Rationale
+---------
+
+If you'd want a naive implementation to track reads, you could simply
+create a behavior that stores a list of user ids on every content object.
+
+Obviously that would soon destroy your site with database writes.
+
+Instead, this backend is designed to:
+
+- Be compatible with async scheduling, even if it does not provide async itself.
+
+- Be flexible to support multiple policy scenarios, without having to rewrite or fork the whole backend.
+
+- Use a pluggable SQL backend instead of the ZODB, both to offload writes and to make it easier to run reporting queries.
+
+Architecture
+============
+
+You're forgiven for thinking the architecture below is overly complex.
+Please see the rationale above.
+
+Not included in ``collective.mustread`` is the frontend and async part::
+
+     [ user browser ]  -> [ view ] -> [ async queue  ]
+
+The backend implementation in this package provides the following::
+
+     [ @@mustread-hit ] -> [behavior] -> [database store]
+
+Let's narrate that starting at the database end.
+
+Database
 --------
 
-- Can be bullet points
+The database storage provides a rich API as specified in ``interfaces.ITracker``.
 
+Note that the API design already contains specifications for some future extensions that have not been implemented yet.
 
-Examples
---------
+The SQL store is derived from the ``collective.auditlog`` implementation.
+We've designed ``collective.mustread`` to be compatible with ``collective.auditlog`` to the point where we'll even re-use the database connector from auditlog if possible.
 
-This add-on can be seen in action at the following sites:
-- Is there a page on the internet where everybody can see the features?
+The database connection is configured via a registry record ``collective.mustread.interfaces.IMustReadSettings``. You typically want this to contain the same value as your auditlog configuration.
 
+Behaviors
+---------
 
-Documentation
--------------
+We provide two behaviors:
 
-Full documentation for end users can be found in the "docs" folder, and is also available online at http://docs.plone.org/foo/bar
+- ``IMaybeMustRead`` basically only provides a checkbox where you can specify whether a content object is 'must-read'.
 
+- ``ITrackReadEnabled`` activates view tracking on a content object. We track views even if ``IMaybeMustRead`` does not mark the object as 'must-read'. The reason for this is we'd like to track popular content even if the items are not compulsory.
 
-Translations
-------------
+You'd typically activate both these behaviors on the content types you'd like to track.
 
-This product has been translated into
+These behaviors are not activated by default - the ``:default`` install profile only provides a browser layer and configures the database connector. It's up to you to choose and implement your tracking policy in your own projects.
 
-- Klingon (thanks, K'Plai)
+The behaviors provide a flex point where you can implement different tracking policies. You could create a behavior that only tracks reads for certain groups of users for example. You can easily do that by creating a new behavior in a few lines of code, with some extra business logic, which then re-uses our extensive read tracking API for the heavy lifting.
+
+View
+----
+
+A helper view ``@mustread-hit`` is available for all ``ITrackReadEnabledMarker`` i.e. all objects with the ``ITrackReadEnabled`` behavior activated. Hitting that view will store a read record in the database for the content object.
+
+In Quaive we will hit this view from our async stack.
+
+You could conceivably, instead of this view, provide a viewlet that accesses the tracking behavior and API. Just be aware that doing all of that full sync is a risk. YMMV.
 
 
 Installation
-------------
+============
 
 Install collective.mustread by adding it to your buildout::
 
@@ -59,21 +122,18 @@ Or use the built-in buildout::
 
 
 Contribute
-----------
+==========
 
 - Issue Tracker: https://github.com/collective/collective.mustread/issues
 - Source Code: https://github.com/collective/collective.mustread
-- Documentation: https://docs.plone.org/foo/bar
 
 
 Support
--------
+=======
 
-If you are having issues, please let us know.
-We have a mailing list located at: project@example.com
-
+If you are having issues, please let us know via the issue tracker.
 
 License
--------
+=======
 
 The project is licensed under the GPLv2.
