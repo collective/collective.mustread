@@ -7,3 +7,4 @@ class Hit(BrowserView):
 
     def __call__(self):
         ITrackReadEnabled(self.context).mark_read()
+        return '%s Marked Read' % '/'.join(self.context.getPhysicalPath())
