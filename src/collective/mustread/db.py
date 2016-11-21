@@ -7,6 +7,8 @@ from sqlalchemy.orm import sessionmaker
 from zope.component import getUtility
 from zope.globalrequest import getRequest
 
+import logging
+log = logging.getLogger(__name__)
 
 DEBUG = False
 
@@ -33,6 +35,11 @@ def getEngine(conn_string=None, req=None):
                 engine = req.environ['sa.engine']
         else:
             engine = create_engine(conn_string, echo=DEBUG)
+            if 'memory' in conn_string:
+                log.warn(
+                    'Running a in-memory database is NOT recommended '
+                    'for production. Please check the registry setting '
+                    'collective.mustread.interfaces.IMustReadSettings.')
         if req:
             req.environ['mustread.engine'] = engine
     return engine
