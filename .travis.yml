@@ -9,7 +9,9 @@ python:
 matrix:
   fast_finish: true
 install:
-  - python bootstrap-buildout.py
+  - virtualenv .
+  - bin/pip install -r requirements.txt
+  - bin/buildout bootstrap
   - bin/buildout -N buildout:download-cache=downloads annotate
   - bin/buildout -N buildout:download-cache=downloads
 before_script:
