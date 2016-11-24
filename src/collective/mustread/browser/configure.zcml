@@ -7,9 +7,17 @@
   <browser:page
       for="..interfaces.ITrackReadEnabledMarker"
       name="mustread-hit"
-      class=".hit.Hit"
+      class=".views.Hit"
       permission="zope2.View"
       layer="..interfaces.ICollectiveMustreadLayer"
       />
 
+  <browser:page
+      for="..interfaces.ITrackReadEnabledMarker"
+      name="mustread-hasread"
+      class=".views.HasRead"
+      permission="zope2.View"
+      layer="..interfaces.ICollectiveMustreadLayer"
+      />
+  
 </configure>
