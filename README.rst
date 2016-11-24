@@ -11,6 +11,8 @@ Track reads on content objects in Plone.
 Features
 ========
 
+- Mark objects as must-read
+
 - Keep a record of first reads of content objects per user
 
 - Query if a specific user has read a specific content object
@@ -64,7 +66,7 @@ Let's narrate that starting at the database end.
 Database
 --------
 
-The database storage provides a rich API as specified in ``interfaces.ITracker``.
+The database storage provides a rich API as specified in ``collective.mustread.interfaces.ITracker``.
 
 Note that the API design already contains specifications for some future extensions that have not been implemented yet.
 
@@ -97,6 +99,8 @@ In Quaive we will hit this view from our async stack.
 
 You could conceivably, instead of this view, provide a viewlet that accesses the tracking behavior and API. Just be aware that doing all of that full sync is a risk. YMMV.
 
+There's also a special debugging view ``@@mustread-hasread`` which will tell you whether the user you're logged in as, has read the object you're calling this view on.
+
 
 Installation
 ============
@@ -119,6 +123,24 @@ Or use the built-in buildout::
   bin/pip install -r requirements.txt
   bin/buildout bootstrap
   bin/buildout
+
+Using collective.mustread
+-------------------------
+
+The minimal steps required to actually use ``collective.mustread`` in your own project:
+
+1. Install ``collective.mustread`` and configure a database connector. The default connector is a in-memory database which is not suitable for production.
+
+2. Activate the ``IMaybeMustRead`` and ``ITrackReadEnabled`` behaviors on the content types you'd like to track, via GenericSetup. Or roll your own custom behaviors.
+
+3. For these content types, hit ``${context/absolute_url}/@@mustread-hit`` when viewing the content. Ideally you'll use some kind of async queue at this stage.
+
+4. Use the tracker API to query the database and adjust your own browser views based on your own business logic. The recommended way to obtain the tracker is::
+
+     from collective.mustread.interfaces import ITracker
+     from zope.component import getUtility
+
+     tracker = getUtility(ITracker)
 
 
 Contribute
