@@ -114,6 +114,17 @@ class ITracker(Interface):
         :rtype: Bool
         '''
 
+    def uids_read(userid=None):
+        '''Query which objects have been read by a user.
+
+        If userid is None, defaults to currently logged-in user.
+
+        :param userid: Userid of the user that viewed the object.
+        :type userid: string
+        :returns: List of content uids (not objects)
+        :rtype: List
+        '''
+
     def who_read(obj):
         '''Query which users have read an object.
 

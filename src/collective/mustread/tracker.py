@@ -53,6 +53,17 @@ class Tracker(object):
         result = self._read(**query_filter)
         return bool(result.all())
 
+    def uids_read(self, userid=None):
+        # block anon
+        if not userid and api.user.is_anonymous():
+            return False
+        query_filter = dict(
+            userid=self._resolve_userid(userid),
+            status='read',
+        )
+        result = self._read(**query_filter)
+        return [x.uid for x in result.all()]
+
     def who_read(self, obj):
         query_filter = dict(
             status='read',

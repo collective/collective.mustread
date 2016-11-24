@@ -1,4 +1,5 @@
 # coding=utf-8
+from collective.mustread import utils
 from collective.mustread.interfaces import ITracker
 from collective.mustread.testing import FunctionalBaseTestCase
 from collective.mustread.tracker import Tracker
@@ -59,6 +60,18 @@ class TestTracker(FunctionalBaseTestCase):
     def test_has_read_userid(self):
         self.tracker.mark_read(self.page, userid='foo')
         self.assertTrue(self.tracker.has_read(self.page, userid='foo'))
+
+    def test_uids_read_none(self):
+        self.assertEqual([], self.tracker.uids_read())
+
+    def test_uids_read_current(self):
+        self.tracker.mark_read(self.page)
+        self.assertEqual([utils.getUID(self.page)], self.tracker.uids_read())
+
+    def test_uids_read_userid(self):
+        self.tracker.mark_read(self.page, userid='foo')
+        self.assertEqual([utils.getUID(self.page)],
+                         self.tracker.uids_read('foo'))
 
     def test_has_read_userid_other(self):
         self.tracker.mark_read(self.page)
