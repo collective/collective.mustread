@@ -2,8 +2,8 @@ Changelog
 =========
 
 
-1.1 (unreleased)
-----------------
+1.0.1 (2016-12-28)
+------------------
 
 - Provide verbose error logging when database is not accessible [gyst]
 
