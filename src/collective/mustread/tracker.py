@@ -10,7 +10,11 @@ from datetime import timedelta
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
 from sqlalchemy import func
+from zope.globalrequest import getRequest
 from zope.interface import implementer
+
+import logging
+log = logging.getLogger(__name__)
 
 
 @implementer(ITracker)
@@ -61,16 +65,16 @@ class Tracker(object):
             userid=self._resolve_userid(userid),
             status='read',
         )
-        result = self._read(**query_filter)
-        return [x.uid for x in result.all()]
+        query = self._read(**query_filter)
+        return [x.uid for x in self.query_all(query)]
 
     def who_read(self, obj):
         query_filter = dict(
             status='read',
             uid=utils.getUID(obj),
         )
-        result = self._read(**query_filter)
-        return [x.userid for x in result.all()]
+        query = self._read(**query_filter)
+        return [x.userid for x in self.query_all(query)]
 
     def most_read(self, days=None, limit=None):
         session = self._get_session()
@@ -84,7 +88,7 @@ class Tracker(object):
                      .group_by(MustRead.uid)\
                      .order_by(func.count(MustRead.userid).desc())\
                      .limit(limit)
-        for record in query.all():
+        for record in self.query_all(query):
             yield api.content.get(UID=record.uid)
 
     def schedule_must_read(self, obj, userids=None, deadline=None):
@@ -109,6 +113,16 @@ class Tracker(object):
         session = self._get_session()
         query_filter = self._safe_unicode(**query_filter)
         return session.query(MustRead).filter_by(**query_filter)
+
+    def query_all(self, query):
+        """Wrap query.all() in a try/except with Engine logging"""
+        try:
+            for record in query.all():
+                yield record
+        except Exception, exc:
+            req = getRequest()
+            log.error('Query error on %s', req.environ['mustread.engine'])
+            raise exc
 
     def _get_session(self):
         # make sure to join the transaction before we start
