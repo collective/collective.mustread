@@ -1,6 +1,6 @@
 # coding=utf-8
+from json import loads
 from plone.registry.interfaces import IRegistry
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
@@ -8,14 +8,14 @@ from zope.component import getUtility
 from zope.globalrequest import getRequest
 
 import logging
+
+
 log = logging.getLogger(__name__)
 
-DEBUG = False
 
-
-def getEngine(conn_string=None, req=None):
+def getEngine(conn_string=None, conn_parameters=None, req=None):
     """
-    cache this on the request object
+    Cache this on the request object
     """
     if req is None:
         req = getRequest()
@@ -29,12 +29,26 @@ def getEngine(conn_string=None, req=None):
             audit_conn_string = registry['collective.auditlog.interfaces.IAuditLogSettings.connectionstring']  # noqa
         except KeyError:
             audit_conn_string = None
-        if conn_string == audit_conn_string \
-           and req and 'sa.engine' in req.environ:
-                # re-use collective.auditlog connector if possible
-                engine = req.environ['sa.engine']
+        if conn_parameters is None:
+            conn_parameters = registry['collective.mustread.interfaces.IMustReadSettings.connectionparameters']  # noqa
+        try:
+            audit_conn_parameters = registry['collective.auditlog.interfaces.IAuditLogSettings.connectionparameters']  # noqa
+        except KeyError:
+            audit_conn_parameters = None
+
+        if (
+            conn_string == audit_conn_string
+            and conn_parameters == audit_conn_parameters
+            and req and 'sa.engine' in req.environ
+        ):
+            # re-use collective.auditlog connector if possible
+            engine = req.environ['sa.engine']
         else:
-            engine = create_engine(conn_string, echo=DEBUG)
+            if not conn_parameters:
+                conn_parameters = {}
+            elif isinstance(conn_parameters, basestring):
+                conn_parameters = loads(conn_parameters)
+            engine = create_engine(conn_string, **conn_parameters)
             if 'memory' in conn_string:
                 log.warn(
                     'Running a in-memory database is NOT recommended '

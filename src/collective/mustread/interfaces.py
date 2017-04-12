@@ -34,6 +34,19 @@ class IMustReadSettings(Interface):
         default=u'sqlite:///:memory:',
     )
 
+    connectionparameters = schema.TextLine(
+        title=_(u'Must Read Connection Parameters'),
+        description=_(
+            u'help_mustread_connection_parameteers',
+            default=(
+                u'Enter the connection parametes in a json form. '
+                u'E.g.: `{"pool_recycle": 3600, "echo": true}` '
+            )
+        ),
+        required=True,
+        default=u'',
+    )
+
 
 class ITrackReadEnabledMarker(Interface):
     '''
