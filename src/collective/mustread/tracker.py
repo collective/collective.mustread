@@ -10,9 +10,11 @@ from datetime import timedelta
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
 from sqlalchemy import func
+from sqlalchemy import or_
 from zope.globalrequest import getRequest
 from zope.interface import implementer
 
+import csv
 import logging
 log = logging.getLogger(__name__)
 
@@ -33,11 +35,21 @@ class Tracker(object):
             return
         if not read_at:
             read_at = datetime.utcnow()
+        userid = self._resolve_userid(userid)
+        uid = utils.getUID(obj)
+
+        open_request = self._read(userid=userid, uid=uid).all()
+        if open_request:
+            # mark existing entry as read and do not create a new entry
+            open_request[0].status = 'read'
+            open_request[0].read_at = read_at
+            return
+
         data = dict(
-            userid=self._resolve_userid(userid),
+            userid=userid,
             read_at=read_at,
             status='read',
-            uid=utils.getUID(obj),
+            uid=uid,
             type=obj.portal_type,
             title=obj.Title(),
             path='/'.join(obj.getPhysicalPath()),
@@ -91,11 +103,117 @@ class Tracker(object):
         for record in self.query_all(query):
             yield api.content.get(UID=record.uid)
 
-    def schedule_must_read(self, obj, userids=None, deadline=None):
-        raise NotImplementedError()
+    def schedule_must_read(self, obj, userids, deadline):
+        # get existing must read items for this object
+        qry = self._read(uid=utils.getUID(obj))
+        existing_users = [m.userid for m in qry.all()]
 
-    def who_unread(self, obj, force_deadline=True):
-        raise NotImplementedError()
+        path = '/'.join(obj.getPhysicalPath())
+        uid = utils.getUID(obj)
+        hostname = utils.hostname()
+        now = datetime.utcnow()
+        current_user = api.user.get_current().id
+        new_users = []
+        for userid in userids:
+            if userid in existing_users:
+                # skip uses that already read the item
+                # or have an open mustread request
+                log.info('user {0} already has read / has to read {1}'.format(
+                    userid, path))
+                continue
+            # @guido: should we change the deadline for existing must_reads?
+            new_users.append(userid)
+            data = dict(
+                userid=userid,
+                status=u'mustread',
+                deadline=deadline,
+                scheduled_at=now,
+                scheduled_by=current_user,
+                uid=uid,
+                type=obj.portal_type,
+                title=obj.Title(),
+                path=path,
+                site_name=hostname,
+            )
+            self._write(**data)
+        return new_users
+
+    def what_to_read(self, context=None, userid=None):
+        session = self._get_session()
+        query = session.query(MustRead.uid).filter(
+            MustRead.status != 'read').group_by(MustRead.uid)
+
+        if context is not None:
+            path = '/'.join(context.getPhysicalPath())
+            query = query.filter(MustRead.path.startswith(path))
+        if userid is not None:
+            query = query.filter(MustRead.userid == unicode(userid))
+        query = query.order_by(MustRead.path)
+        uids = [r[0] for r in self.query_all(query)]
+        for uid in uids:
+            obj = api.content.get(UID=uid)
+            if obj is None:
+                log.warning('mustread db contains broken uid: ' + uid)
+                continue
+            yield obj
+
+    def who_must_read(self, obj):
+        must_reads = self._read(uid=utils.getUID(obj), status='mustread').all()
+        return dict([(m.userid, m.deadline) for m in must_reads])
+
+    def get_report(self, context=None, include_children=True, userid=None,
+                   start_date=None):
+        path = '/'.join(api.portal.get().getPhysicalPath())
+        if context is not None:
+            path = '/'.join(context.getPhysicalPath())
+
+        session = self._get_session()
+        query = session.query(MustRead)
+
+        if start_date:
+            query = query.filter(or_(
+                MustRead.scheduled_at >= start_date.date(),
+                MustRead.read_at >= start_date.date()))
+
+        if userid:
+            query = query.filter(MustRead.userid == userid)
+        if include_children:
+            query = query.filter(MustRead.path.startswith(path))
+        else:
+            query = query.filter(MustRead.path == path)
+
+        query = query.order_by(MustRead.path)
+
+        for item in query.all():
+            # remove sqlalchemy specific data
+            # (see discussion at http://stackoverflow.com/q/1958219/810427)
+            yield dict([(k, v) for k, v in item.__dict__.iteritems()
+                        if not k.startswith('_')])
+
+    def get_stats_csv(self, csvfile, context=None, recursive=True):
+        """export mustread database entries for all objects within context
+        csvfile is a file-like object with a write method
+        (see csv.writer documentation)
+        xxx if guido does not like csv creation here in the api we can move
+        this to our contentrule
+        [{userid, uid, status, read_at, deadline, scheduled_at, type, path,}]
+        """
+
+        fieldnames = ['path', 'userid', 'read_at', 'deadline', 'scheduled_at',
+                      'scheduled_by', 'status', 'uid', 'type']
+
+        writer = csv.DictWriter(csvfile, fieldnames, extrasaction='ignore')
+        writer.writeheader()
+        for item in self.get_stats(context, recursive):
+            writer.writerow(item)
+
+    def unschedule_must_read(self, obj=None, userids=None):
+        # maintenance methods need to be implemented
+        raise NotImplemented()
+
+    def accept_not_read(self, obj=None, userids=None):
+        # maintenance methods need to be implemented
+        raise NotImplemented()
 
     def _resolve_userid(self, userid=None):
         if userid:

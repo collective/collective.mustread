@@ -108,7 +108,7 @@ The behaviors provide a flex point where you can implement different tracking po
 View
 ----
 
-A helper view ``@mustread-hit`` is available for all ``ITrackReadEnabledMarker`` i.e. all objects with the ``ITrackReadEnabled`` behavior activated. Hitting that view will store a read record in the database for the content object.
+A helper view ``@@mustread-hit`` is available for all ``ITrackReadEnabledMarker`` i.e. all objects with the ``ITrackReadEnabled`` behavior activated. Hitting that view will store a read record in the database for the content object.
 
 In Quaive we will hit this view from our async stack.
 

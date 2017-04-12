@@ -17,6 +17,8 @@ class MustRead(Base):
     userid = Column(Unicode(255), nullable=True)
     read_at = Column(DateTime, nullable=True)
     deadline = Column(DateTime, nullable=True)
+    scheduled_at = Column(DateTime, nullable=True)
+    scheduled_by = Column(String(255))
     status = Column(String(255), nullable=True)
     uid = Column(String(255))
     type = Column(String(255), nullable=True)

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from Products.CMFPlone.interfaces import INonInstallable
 from collective.mustread.db import getSession
 from collective.mustread.interfaces import IMustReadSettings
 from collective.mustread.models import Base
 from plone import api
+from Products.CMFPlone.interfaces import INonInstallable
 from zope.interface import implementer
 
 import logging
