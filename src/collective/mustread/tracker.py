@@ -204,7 +204,7 @@ class Tracker(object):
 
         writer = csv.DictWriter(csvfile, fieldnames, extrasaction='ignore')
         writer.writeheader()
-        for item in self.get_stats(context, recursive):
+        for item in self.get_report(context, recursive):
             writer.writerow(item)
 
     def unschedule_must_read(self, obj=None, userids=None):
