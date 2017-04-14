@@ -10,6 +10,7 @@ from zope.component import getUtility
 from zope.interface.verify import verifyObject
 
 import datetime
+import unittest
 
 
 class TestTracker(FunctionalBaseTestCase):
@@ -224,10 +225,17 @@ class TestTrackerScheduled(FunctionalBaseTestCase):
         entry = self.db.reads[0]
         self.assertEqual(entry.status, 'mustread')
         self.assertEqual(entry.uid, utils.getUID(self.page))
-        self.assertEqual(entry.scheduled_by, 'test_user_1_')
+        self.assertEqual(entry.scheduled_by, None)
         self.assertEqual(entry.deadline, self.deadline)
         self.assertEqual(entry.scheduled_at.date(),
                          datetime.date.today())
+
+        # optionally we can record who requested the review:
+        users = self.tracker.schedule_must_read(self.page, ['user2'],
+                                                self.deadline,
+                                                'user1')
+        entry = self.db.reads[-1]
+        self.assertEqual(entry.scheduled_by, 'user1')
 
     def test_schedule_must_read_existing(self):
         """existing mustread request for an object do not get
@@ -299,23 +307,23 @@ class TestTrackerScheduled(FunctionalBaseTestCase):
 
         # no context given, all pages are returned
         to_read = self.tracker.what_to_read()
-        self.assertEqual(list(to_read), [self.page1, self.page])
+        self.assertEqual(to_read, [self.page1, self.page])
 
         # only return objects within a folder
         to_read = self.tracker.what_to_read(context=self.folder)
-        self.assertEqual(list(to_read), [self.page1])
+        self.assertEqual(to_read, [self.page1])
 
         # limit to user
         to_read = self.tracker.what_to_read(userid='user1')
-        self.assertEqual(list(to_read), [self.page])
+        self.assertEqual(to_read, [self.page])
 
         # user and context combined
         to_read = self.tracker.what_to_read(context=self.folder,
                                             userid='user1')
-        self.assertEqual(list(to_read), [])
+        self.assertEqual(to_read, [])
         to_read = self.tracker.what_to_read(context=self.folder,
                                             userid='user3')
-        self.assertEqual(list(to_read), [self.page1])
+        self.assertEqual(to_read, [self.page1])
 
     def test_get_report(self):
         # no entries - report empty
@@ -392,3 +400,7 @@ class TestTrackerScheduled(FunctionalBaseTestCase):
                                               userid='user2',
                                               start_date=tomorrow))
         self.assertEqual(len(report), 0)
+
+    @unittest.skip('test needs to be implemented')
+    def test_get_report_csv(self):
+        pass

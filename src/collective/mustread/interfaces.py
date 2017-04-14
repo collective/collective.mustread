@@ -74,8 +74,6 @@ class ITracker(Interface):
     - who_read(obj)
     - uids_read('johndoe')
 
-    Scheduled for later extension:
-
     2. Specify which users should read an object, with a deadline; then
        track reads on that object, and query which users have failed to
        meet the requirment of reading the object in time:
@@ -165,7 +163,7 @@ class ITracker(Interface):
         :rtype: Generator
         '''
 
-    def schedule_must_read(obj, userids, deadline):
+    def schedule_must_read(obj, userids, deadline, by=None):
         '''Schedule that an object must be read by some users before a deadline.
 
         Calling this method is optional. An object does not have to be
@@ -181,6 +179,8 @@ class ITracker(Interface):
         :type userids: List
         :param deadline: Deadline before which users should view the object.
         :type deadline: datetime
+        :param by: Userid that scheduled the must read request
+        :type by: string
         :returns: List of userids a mustread deadline has been scheduled for
                   (existing deadlines do not get changed)
         :rtype: list
@@ -239,9 +239,8 @@ class ITracker(Interface):
         :param userid: Userid to search for open read requests for.
         :type userid: string
         :returns: List of content objects with open read requests
-        :rtype: Generator
+        :rtype: list
         '''
-        # xxx guido: generator or list? (we intend to use all elements anyway)
 
     def get_report(context=None, include_children=True, userid=None,
                    start_date=None):
@@ -251,7 +250,7 @@ class ITracker(Interface):
         If context is None, defaults to plone site.
 
         If include_children is ``True`` (which is the default), include
-        mustread records for child-objects of context.
+        mustread records for child-objects (path starts with context's path).
 
         If userid is given, only return entries for this user
 
@@ -265,31 +264,49 @@ class ITracker(Interface):
         :param userid: only report records for specified user
         :type userid: string
         :param start_date: Filter out entries older than start_date
-        :type read_at: datetime
+        :type start_at: datetime
         :returns: List of dictionaries, each representing a mustread record
                   ``[{userid, uid, status, read_at, deadline, scheduled_at,
                       type, path, ...}]``
         :rtype: Generator
         '''
-        # xxx guido: generator or list? (we intend to use all elements anyway)
 
-    def unschedule_must_read(obj=None, userids=None):
-        '''Maintenance method to remove open must-read requests for an object
-        and/or a specified userid
+    def get_report_csv(csvfile, context=None, include_children=True,
+                       fieldnames=[]):
+        '''Export mustread database entries for all objects within context
+        in csv format to `csvfile`
 
-        @guido decide if we need/want this
+        The file will contain a header line and data for all columns specified
+        in `columns`.
+
+        If context is None, defaults to plone site.
+
+        If include_children is ``True`` (which is the default), include
+        mustread records for child-objects (path starts with context's path).
+
+        `fieldnames` can be used to define the order of columns in the report
+        and which data to export.
+        If fieldnames is empty, all available columns get exported.
+
+        :param csvfile: file-like object with a`write` method that all records
+                        will be written to (see csv.writer documentation)
+        :type csvfile: file or stream
+        :param context: Context to create mustread report on
+        :type context: Content object (must be IUUID resolvable)
+        :param include_children: Whether to include child-objects of context
+        :type include_children: Bool
+        :param fieldnames: Names of the columns to add to the csv file
+        :type fieldnames: list
         '''
 
-    def accept_not_read(obj=None, userids=None):
-        '''Maintenance method to mark open must-read requests for an object
-        and/or a specified userid with status 'not-read' and leaving the
-        read_at date empty.
-        this way they object is not listed as what_to_read
-        and the user ist not listed in who_must_read
+    def unschedule_must_read(obj=None, userids=None):
+        '''Maintenance method to remove all open must-read requests for an object
+        and/or a specified userid
 
-        this would allow admins to clear certain objects form the must-read
-        list or accept that a user (that might be ill) will not be required to
-        read a content item
-
-        @guido decide if we need/want this
+        :param obj: Object that all open requests shall be removed for
+                    (can be combined with userids)
+        :type obj: Content object (must be IUUID resolvable)
+        :param userids: Userids of the users that open requests shall be
+                        removed for (can be combined with obj)
+        :type userids: List
         '''

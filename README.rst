@@ -68,8 +68,6 @@ Database
 
 The database storage provides a rich API as specified in ``collective.mustread.interfaces.ITracker``.
 
-Note that the API design already contains specifications for some future extensions that have not been implemented yet.
-
 By default collective.mustread writes to an in-memory sqlite database.
 Data will be lost on zope-server restarts.
 

@@ -103,7 +103,7 @@ class Tracker(object):
         for record in self.query_all(query):
             yield api.content.get(UID=record.uid)
 
-    def schedule_must_read(self, obj, userids, deadline):
+    def schedule_must_read(self, obj, userids, deadline, by=None):
         # get existing must read items for this object
         qry = self._read(uid=utils.getUID(obj))
         existing_users = [m.userid for m in qry.all()]
@@ -112,7 +112,6 @@ class Tracker(object):
         uid = utils.getUID(obj)
         hostname = utils.hostname()
         now = datetime.utcnow()
-        current_user = api.user.get_current().id
         new_users = []
         for userid in userids:
             if userid in existing_users:
@@ -128,13 +127,14 @@ class Tracker(object):
                 status=u'mustread',
                 deadline=deadline,
                 scheduled_at=now,
-                scheduled_by=current_user,
                 uid=uid,
                 type=obj.portal_type,
                 title=obj.Title(),
                 path=path,
                 site_name=hostname,
             )
+            if by:
+                data['scheduled_by'] = by
             self._write(**data)
         return new_users
 
@@ -150,12 +150,14 @@ class Tracker(object):
             query = query.filter(MustRead.userid == unicode(userid))
         query = query.order_by(MustRead.path)
         uids = [r[0] for r in self.query_all(query)]
+        result = []
         for uid in uids:
             obj = api.content.get(UID=uid)
             if obj is None:
                 log.warning('mustread db contains broken uid: ' + uid)
                 continue
-            yield obj
+            result.append(obj)
+        return result
 
     def who_must_read(self, obj):
         must_reads = self._read(uid=utils.getUID(obj), status='mustread').all()
@@ -190,28 +192,19 @@ class Tracker(object):
             yield dict([(k, v) for k, v in item.__dict__.iteritems()
                         if not k.startswith('_')])
 
-    def get_stats_csv(self, csvfile, context=None, recursive=True):
-        """export mustread database entries for all objects within context
-        csvfile is a file-like object with a write method
-        (see csv.writer documentation)
-        xxx if guido does not like csv creation here in the api we can move
-        this to our contentrule
-        [{userid, uid, status, read_at, deadline, scheduled_at, type, path,}]
-        """
-
-        fieldnames = ['path', 'userid', 'read_at', 'deadline', 'scheduled_at',
-                      'scheduled_by', 'status', 'uid', 'type']
+    def get_report_csv(self, csvfile, context=None, include_children=True,
+                       fieldnames=[]):
+        if not fieldnames:
+            fieldnames = [
+                'path', 'userid', 'read_at', 'deadline', 'scheduled_at',
+                'scheduled_by', 'status', 'uid', 'type']
 
         writer = csv.DictWriter(csvfile, fieldnames, extrasaction='ignore')
         writer.writeheader()
-        for item in self.get_report(context, recursive):
+        for item in self.get_report(context, include_children):
             writer.writerow(item)
 
     def unschedule_must_read(self, obj=None, userids=None):
-        # maintenance methods need to be implemented
-        raise NotImplemented()
-
-    def accept_not_read(self, obj=None, userids=None):
         # maintenance methods need to be implemented
         raise NotImplemented()
 
