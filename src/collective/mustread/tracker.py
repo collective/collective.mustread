@@ -176,7 +176,7 @@ class Tracker(object):
                 MustRead.read_at >= start_date.date()))
 
         if userid:
-            query = query.filter(MustRead.userid == userid)
+            query = query.filter(MustRead.userid == unicode(userid))
         if include_children:
             query = query.filter(MustRead.path.startswith(path))
         else:
