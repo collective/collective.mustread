@@ -2,10 +2,11 @@ Changelog
 =========
 
 
-1.0.2 (unreleased)
+1.1.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Added the possibility to specify engine parameters through the registry
+  [ale-rt]
 
 
 1.0.1 (2016-12-28)

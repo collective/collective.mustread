@@ -10,6 +10,7 @@
 
   <include package=".browser" />
   <include package=".behaviors" />
+  <include package=".upgrades" />
 
   <utility factory=".tracker.Tracker" />
 
