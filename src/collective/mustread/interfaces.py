@@ -73,12 +73,14 @@ class ITracker(Interface):
     - has_read(obj, 'johndoe')
     - who_read(obj)
     - uids_read('johndoe')
+    - most_read(10, 5)  # top 5 objects in the last 10 days
 
     2. Specify which users should read an object, with a deadline; then
        track reads on that object, and query which users have failed to
        meet the requirment of reading the object in time:
 
     - schedule_must_read(obj, ['johndoe', 'maryjane'], nextweek)
+    - unschedule_must_read(obj, ['johndoe'])
     - mark_read(obj, 'johndoe')
     - who_must_read(obj)
     - what_to_read(context)
@@ -87,6 +89,11 @@ class ITracker(Interface):
     The second scenario is a superset of the first. Specifically, also
     users who were not scheduled as ``schedule_must_read`` will be tracked and
     returned when you query ``who_read(obj)``.
+
+    In addition we provide methods to obtain reports for objects/users
+
+    - get_report(folder, 'john', recursive, read_or_sheduled_after_lastweek)
+    - get_report_csv(csvfile, folder, recursive, ['path', 'userid', 'status'])
 
     Note that we use userids not usernames, since userids will be more stable.
     This deviates from the records stored by collective.auditlog which use
