@@ -335,9 +335,8 @@ class TestTrackerScheduled(FunctionalBaseTestCase):
         report = list(self.tracker.get_report())
         self.assertEqual(len(report), 1)
 
-        all_keys = [
-            'status', 'info', 'read_at', 'site_name', 'uid', 'title', 'userid',
-            'deadline', 'path', 'scheduled_at', 'type', 'id', 'scheduled_by']
+        all_keys = ['status', 'read_at', 'uid', 'userid', 'deadline', 'path',
+                    'scheduled_at', 'type', 'id', 'scheduled_by']
         # check if all keys are contained
         self.assertTrue(set(report[0].keys()).issuperset(set(all_keys)))
         # check some values

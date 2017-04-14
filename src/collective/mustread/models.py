@@ -22,7 +22,4 @@ class MustRead(Base):
     status = Column(String(255), nullable=True)
     uid = Column(String(255))
     type = Column(String(255), nullable=True)
-    title = Column(Unicode(255), nullable=True)
     path = Column(String(255), nullable=True)
-    site_name = Column(Unicode(255), nullable=True)
-    info = Column(Unicode(255), nullable=True)

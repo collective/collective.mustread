@@ -51,9 +51,7 @@ class Tracker(object):
             status='read',
             uid=uid,
             type=obj.portal_type,
-            title=obj.Title(),
             path='/'.join(obj.getPhysicalPath()),
-            site_name=utils.hostname(),
         )
         self._write(**data)
 
@@ -91,8 +89,7 @@ class Tracker(object):
     def most_read(self, days=None, limit=None):
         session = self._get_session()
         query = session.query(MustRead.uid,
-                              func.count(MustRead.userid),
-                              MustRead.title)
+                              func.count(MustRead.userid))
         if days:
             read_at = datetime.utcnow() - timedelta(days=days)
             query = query.filter(MustRead.read_at >= read_at)
@@ -110,7 +107,6 @@ class Tracker(object):
 
         path = '/'.join(obj.getPhysicalPath())
         uid = utils.getUID(obj)
-        hostname = utils.hostname()
         now = datetime.utcnow()
         new_users = []
         for userid in userids:
@@ -129,9 +125,7 @@ class Tracker(object):
                 scheduled_at=now,
                 uid=uid,
                 type=obj.portal_type,
-                title=obj.Title(),
                 path=path,
-                site_name=hostname,
             )
             if by:
                 data['scheduled_by'] = by
