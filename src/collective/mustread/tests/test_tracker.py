@@ -228,7 +228,7 @@ class TestTrackerScheduled(FunctionalBaseTestCase):
         self.assertEqual(entry.scheduled_by, None)
         self.assertEqual(entry.deadline, self.deadline)
         self.assertEqual(entry.scheduled_at.date(),
-                         datetime.date.today())
+                         datetime.datetime.utcnow().date())
 
         # optionally we can record who requested the review:
         users = self.tracker.schedule_must_read(self.page, ['user2'],
@@ -261,7 +261,8 @@ class TestTrackerScheduled(FunctionalBaseTestCase):
         self.assertEqual(len(self.db.reads), 1)
         entry = self.db.reads[0]
         self.assertEqual(entry.status, 'read')
-        self.assertEqual(entry.read_at.date(), datetime.date.today())
+        today = datetime.datetime.utcnow().date()
+        self.assertEqual(entry.read_at.date(), today)
 
     def test_who_must_read(self):
         custom_deadline = datetime.datetime(2017, 12, 31, 23, 00)
@@ -382,7 +383,7 @@ class TestTrackerScheduled(FunctionalBaseTestCase):
         report = list(self.tracker.get_report(start_date=yesterday))
         self.assertEqual(len(report), 2)
         # get_report compares to the date and ignores the time
-        today = datetime.datetime.now()
+        today = datetime.datetime.utcnow()
         report = list(self.tracker.get_report(start_date=today))
         self.assertEqual(len(report), 2)
         # we don't have items scheduled or marked as read past tomorrow
