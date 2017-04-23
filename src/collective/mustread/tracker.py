@@ -146,10 +146,17 @@ class Tracker(object):
             self._write(**data)
         return new_users
 
-    def what_to_read(self, context=None, userid=None, deadline_before=None):
+    def what_to_read(self, context=None, userid=None, force_deadline=False,
+                     deadline_before=None):
         session = self._get_session()
-        query = session.query(MustRead.uid).filter(
-            MustRead.status != 'read').group_by(MustRead.uid)
+        query = session.query(MustRead.uid).group_by(MustRead.uid)
+
+        if force_deadline:
+            query = query.filter(or_(
+                MustRead.deadline < MustRead.read_at,
+                MustRead.status == 'mustread'))
+        else:
+            query = query.filter(MustRead.status == 'mustread')
 
         if context is not None:
             path = '/'.join(context.getPhysicalPath())

@@ -389,8 +389,9 @@ class TestTrackerScheduled(FunctionalBaseTestCase):
         self.tracker.schedule_must_read(self.page2, ['user2'],
                                         self.deadline)
 
-        # mark open request as read
-        self.tracker.mark_read(self.page2, 'user2')
+        # mark open request as read (but too late)
+        self.tracker.mark_read(self.page2, 'user2',
+                               self.deadline + datetime.timedelta(1))
         # mark as read w/o any pending request
         self.tracker.mark_read(self.page3, 'user2')
 
@@ -413,6 +414,15 @@ class TestTrackerScheduled(FunctionalBaseTestCase):
         to_read = self.tracker.what_to_read(context=self.folder,
                                             userid='user3')
         self.assertEqual(to_read, [self.page1])
+
+        # force_deadline=True, ignore requests marked as read too late
+        to_read = self.tracker.what_to_read(force_deadline=True)
+        self.assertEqual(to_read, [self.page1, self.page2, self.page])
+        # combined with context and user
+        to_read = self.tracker.what_to_read(context=self.folder,
+                                            userid='user2',
+                                            force_deadline=True)
+        self.assertEqual(to_read, [self.page1, self.page2])
 
         # filter for deadline
         to_read = self.tracker.what_to_read(context=self.folder,

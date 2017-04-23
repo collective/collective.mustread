@@ -251,7 +251,8 @@ class ITracker(Interface):
         :rtype: dict
         '''
 
-    def what_to_read(context=None, userid=None, deadline_before=None):
+    def what_to_read(context=None, userid=None, force_deadline=False,
+                     deadline_before=None):
         '''Query which content items have open read requests.
 
         This only queries for objects who have been explicitly scheduled via
@@ -264,6 +265,13 @@ class ITracker(Interface):
         If userid is given, limit results to objects with an open read request
         for this userid.
 
+        Use `force_deadline` to filter for users that missed their deadline:
+
+        * If set to True, returns scheduled objects with unread requests
+          or requests read *after* their deadline.
+
+        * If set to False, returns scheduled objects with unread requests
+
         If deadline_before is given, limit the results to objects with read
         requests with a deadline less than deadline_before.
 
@@ -271,6 +279,8 @@ class ITracker(Interface):
         :type context: Content object (must be IUUID resolvable)
         :param userid: Userid to search for open read requests for.
         :type userid: string
+        :param force_deadline: Whether to ignore reads after the deadline
+        :type force_deadline: Bool
         :param deadline_before: Filter for objects with deadlines <= this date
         :type deadline_before: datetime
         :returns: List of content objects with open read requests
