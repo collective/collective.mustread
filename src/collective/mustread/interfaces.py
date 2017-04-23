@@ -82,7 +82,9 @@ class ITracker(Interface):
     - schedule_must_read(obj, ['johndoe', 'maryjane'], nextweek)
     - unschedule_must_read(obj, ['johndoe'])
     - mark_read(obj, 'johndoe')
-    - who_must_read(obj)
+    - who_did_not_read(obj) #
+    - who_did_not_read(obj, force_deadline=True, deadline_before=today_0_am)
+      (all users that missed their deadlines)
     - what_to_read(context)
     - what_to_read(userid)
 
@@ -178,7 +180,13 @@ class ITracker(Interface):
 
         Calling this method and scheduling an object as 'must-read' enables
         tracking of 'unread' status for specific sets of users and querying
-        for those via the ``who_must_read`` method.
+        for those via the ``who_did_not_read`` method.
+
+        If the object has been scheduled as must_read for a user before, do not
+        update the existing record (use unschedule_must_read to remove the read
+        request before).
+        If the object has been marked as read for a user before without an
+        existing read request, remove the 'read' status and schedule a request
 
         :param obj: Object that should be read by users
         :type obj: Content object (must be IUUID resolvable)
@@ -193,38 +201,57 @@ class ITracker(Interface):
         :rtype: list
         '''
 
-    def who_must_read(obj):
-        # def who_must_read(obj, force_deadline=True):
-        '''For an object scheduled as must-read, query which users have not
-        read the object.
+    def unschedule_must_read(obj=None, userids=None):
+        '''Remove a all open read requests created with `schedule_must_read`
+        for a given object an/or userids.
+        If the object has been marked as read by a user already, keep the
+        `read` state and the `read_at` time, but remove scheduled_at/by and
+        the deadline.
 
-        Only makes sense of you first scheduled a must read
-        via ``schedule_must_read`` - which is optional.
+
+        :param obj: Object that all open requests shall be removed for
+                    (can be combined with userids)
+        :type obj: Content object (must be IUUID resolvable)
+        :param userids: Userids of the users that open requests shall be
+                        removed for (can be combined with obj)
+        :type userids: List
+        '''
+
+    def who_did_not_read(obj, force_deadline=False, deadline_before=None):
+        '''For an object scheduled as must-read, query which users have not
+        read the object (at all, or before their personal deadline).
 
         This only queries for users who have been explicitly scheduled via
         the ``schedule_must_read()`` method. If no users were scheduled,
         returns an empty dictionary.
 
-        If ``force_deadline`` is True, returns scheduled users who
-        did not read the object before the deadline. This includes users
-        who may have read the object *after* the deadline.
+        Use `force_deadline` to filter for users that missed their deadline:
 
-        If ``force_deadline`` is False, returns scheduled users who
-        did not read the object at all.
+        * If set to True, returns scheduled users who did not read the object
+          before the deadline. This includes users who may have read the object
+          *after* the deadline.
 
-        @guido: i'd suggest to remove force_deadline as we have the get_stats
-        method to get a detailed report which users read and when
+        * If set to False, returns scheduled users who did not read the object
+          at all.
+
+
+        Use `deadline_before` to filter for users which have not read an object
+        and having a deadline in the past.
+        If given, only return scheduled users with a mustread deadline
+        less than `deadline_before`.
 
         :param obj: Object that should be read by users
         :type obj: Content object (must be IUUID resolvable)
         :param force_deadline: Whether to ignore reads after the deadline
         :type force_deadline: Bool
+        :param deadline_before: Filter for users with deadline <= this date
+        :type deadline_before: datetime
         :returns: Dictionary with userids of users scheduled for reading which
                   did not read and their deadline (``{userid: deadline}``)
         :rtype: dict
         '''
 
-    def what_to_read(context=None, userid=None):
+    def what_to_read(context=None, userid=None, deadline_before=None):
         '''Query which content items have open read requests.
 
         This only queries for objects who have been explicitly scheduled via
@@ -237,14 +264,15 @@ class ITracker(Interface):
         If userid is given, limit results to objects with an open read request
         for this userid.
 
-        @guido: if we implement the force_deadline here, we'd have an easy way
-        to list all items with missed deadlines too. alternatively we can make
-        get_report more powerful/complex
+        If deadline_before is given, limit the results to objects with read
+        requests with a deadline less than deadline_before.
 
         :param context: Context to search for objects with open read requests
         :type context: Content object (must be IUUID resolvable)
         :param userid: Userid to search for open read requests for.
         :type userid: string
+        :param deadline_before: Filter for objects with deadlines <= this date
+        :type deadline_before: datetime
         :returns: List of content objects with open read requests
         :rtype: list
         '''
@@ -304,16 +332,4 @@ class ITracker(Interface):
         :type include_children: Bool
         :param fieldnames: Names of the columns to add to the csv file
         :type fieldnames: list
-        '''
-
-    def unschedule_must_read(obj=None, userids=None):
-        '''Maintenance method to remove all open must-read requests for an object
-        and/or a specified userid
-
-        :param obj: Object that all open requests shall be removed for
-                    (can be combined with userids)
-        :type obj: Content object (must be IUUID resolvable)
-        :param userids: Userids of the users that open requests shall be
-                        removed for (can be combined with obj)
-        :type userids: List
         '''

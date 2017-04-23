@@ -101,22 +101,36 @@ class Tracker(object):
             yield api.content.get(UID=record.uid)
 
     def schedule_must_read(self, obj, userids, deadline, by=None):
-        # get existing must read items for this object
-        qry = self._read(uid=utils.getUID(obj))
-        existing_users = [m.userid for m in qry.all()]
-
         path = '/'.join(obj.getPhysicalPath())
         uid = utils.getUID(obj)
         now = datetime.utcnow()
         new_users = []
+
+        # get existing read requests for this object (having a deadline)
+        session = self._get_session()
+        query = session.query(MustRead)
+        query = query.filter(MustRead.deadline).filter(MustRead.uid == uid)
+        existing_requests = [m.userid for m in query.all()]
+
         for userid in userids:
-            if userid in existing_users:
-                # skip uses that already read the item
-                # or have an open mustread request
-                log.info('user {0} already has read / has to read {1}'.format(
+            if userid in existing_requests:
+                # skip users that already have a mustread request
+                log.info('user {0} already has a read request for {1}'.format(
                     userid, path))
                 continue
-            # @guido: should we change the deadline for existing must_reads?
+
+            existing_read = self._read(
+                userid=userid, uid=uid, status='read', deadline=None).all()
+            if existing_read:
+                # mark existing entry as mustread
+                existing_read[0].status = 'mustread'
+                existing_read[0].read_at = None
+                existing_read[0].deadline = deadline
+                existing_read[0].scheduled_at = now
+                existing_read[0].scheduled_by = by
+                new_users.append(userid)
+                continue
+
             new_users.append(userid)
             data = dict(
                 userid=userid,
@@ -132,7 +146,7 @@ class Tracker(object):
             self._write(**data)
         return new_users
 
-    def what_to_read(self, context=None, userid=None):
+    def what_to_read(self, context=None, userid=None, deadline_before=None):
         session = self._get_session()
         query = session.query(MustRead.uid).filter(
             MustRead.status != 'read').group_by(MustRead.uid)
@@ -142,6 +156,8 @@ class Tracker(object):
             query = query.filter(MustRead.path.startswith(path))
         if userid is not None:
             query = query.filter(MustRead.userid == unicode(userid))
+        if deadline_before:
+            query = query.filter(MustRead.deadline < deadline_before)
         query = query.order_by(MustRead.path)
         uids = [r[0] for r in self.query_all(query)]
         result = []
@@ -153,9 +169,22 @@ class Tracker(object):
             result.append(obj)
         return result
 
-    def who_must_read(self, obj):
-        must_reads = self._read(uid=utils.getUID(obj), status='mustread').all()
-        return dict([(m.userid, m.deadline) for m in must_reads])
+    def who_did_not_read(self, obj, force_deadline=False,
+                         deadline_before=None):
+        session = self._get_session()
+        query = session.query(MustRead)
+        query = query.filter(MustRead.uid == utils.getUID(obj))
+        if force_deadline:
+            query = query.filter(or_(
+                MustRead.deadline < MustRead.read_at,
+                MustRead.status == 'mustread'))
+        else:
+            query = query.filter(MustRead.status == 'mustread')
+
+        if deadline_before:
+            query = query.filter(MustRead.deadline < deadline_before)
+
+        return dict([(m.userid, m.deadline) for m in query.all()])
 
     def get_report(self, context=None, include_children=True, userid=None,
                    start_date=None):
@@ -200,7 +229,7 @@ class Tracker(object):
 
     def unschedule_must_read(self, obj=None, userids=None):
         # maintenance methods need to be implemented
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def _resolve_userid(self, userid=None):
         if userid:

@@ -237,7 +237,7 @@ class TestTrackerScheduled(FunctionalBaseTestCase):
         entry = self.db.reads[-1]
         self.assertEqual(entry.scheduled_by, 'user1')
 
-    def test_schedule_must_read_existing(self):
+    def test_schedule_must_read_existing_mustread(self):
         """existing mustread request for an object do not get
         overwritten, we return ids of users a request has
         been written for
@@ -253,6 +253,42 @@ class TestTrackerScheduled(FunctionalBaseTestCase):
         self.assertEqual(users, ['user2'])
         self.assertEqual(len(self.db.reads), 2)
 
+    def test_schedule_must_read_existing_read(self):
+        """objects marked as read for a user lose their 'read'
+        marker if a read request is scheduled at a later time.
+        """
+        self.tracker.mark_read(self.page, 'user1')
+        self.assertEqual(len(self.db.reads), 1)
+
+        users = self.tracker.schedule_must_read(
+            self.page, ['user1'], self.deadline)
+        self.assertEqual(users, ['user1'])
+        self.assertEqual(len(self.db.reads), 1)
+        self.assertEqual(self.db.reads[0].status, 'mustread')
+        self.assertEqual(self.db.reads[0].deadline, self.deadline)
+        self.assertEqual(self.db.reads[0].scheduled_at.date(),
+                         datetime.datetime.utcnow().date())
+
+    def test_schedule_must_read_existing_request_read(self):
+        """a read request marked as read for a user does not get
+        updated if another read request is scheduled at a later time.
+        """
+        deadline = datetime.datetime(2017, 4, 16, 7, 40)
+        self.tracker.schedule_must_read(self.page, ['user1'], deadline, 'boss')
+        self.tracker.mark_read(self.page, 'user1')
+        self.tracker.mark_read(self.page, 'user2')
+        self.assertEqual(len(self.db.reads), 2)
+
+        users = self.tracker.schedule_must_read(
+            self.page, ['user1', 'user2'], self.deadline, 'me')
+        self.assertEqual(users, ['user2'])
+        self.assertEqual(len(self.db.reads), 2)
+        self.assertEqual(self.db.reads[0].status, 'read')
+        self.assertEqual(self.db.reads[0].scheduled_by, 'boss')
+        self.assertEqual(self.db.reads[0].deadline, deadline)
+        self.assertEqual(self.db.reads[0].scheduled_at.date(),
+                         datetime.datetime.utcnow().date())
+
     def test_mark_scheduled_as_read(self):
         self.tracker.schedule_must_read(self.page, ['user1'],
                                         self.deadline)
@@ -264,31 +300,83 @@ class TestTrackerScheduled(FunctionalBaseTestCase):
         today = datetime.datetime.utcnow().date()
         self.assertEqual(entry.read_at.date(), today)
 
-    def test_who_must_read(self):
+    def test_who_did_not_read_missed(self):
+        """usecase: find out who missed to read an object.
+
+        we can use deadline_before=today to only search for users
+        that did not read and have a deadline that is in the past"""
+
+        deadline = datetime.datetime(2017, 4, 16, 7, 40)
+        two_before = deadline - datetime.timedelta(2)
+        one_before = deadline - datetime.timedelta(2)
+
+        self.tracker.schedule_must_read(self.page, ['user1', 'user3'],
+                                        deadline)
+        self.tracker.schedule_must_read(self.page, ['user2'], one_before)
+
+        # user1 read before the deadline
+        self.tracker.mark_read(self.page, 'user1', one_before)
+        # user2 read after the deadline
+        self.tracker.mark_read(self.page, 'user2', deadline)
+
+        # user3 did not read the object at all
+        who = self.tracker.who_did_not_read(self.page)
+        self.assertEqual(sorted(who.keys()), ['user3'])
+
+        # if we ask for users who missed their deadline too,
+        # user2 is also included
+        who = self.tracker.who_did_not_read(self.page, force_deadline=True)
+        self.assertEqual(sorted(who.keys()), ['user2', 'user3'])
+
+        # to search for users that did not read an object and the deadline
+        # has already passed - use deadline_before
+        # if we'd search for users that did not read/or missed their deadline
+        # before their deadline, we get no results
+        # (they still have time to read)
+        who = self.tracker.who_did_not_read(self.page,
+                                            deadline_before=two_before)
+        self.assertEqual(sorted(who.keys()), [])
+        who = self.tracker.who_did_not_read(self.page,
+                                            force_deadline=True,
+                                            deadline_before=two_before)
+        self.assertEqual(sorted(who.keys()), [])
+
+        # user2 has read after his deadline, which was on one_before
+        # he/she only gets returned with forece_deadline==True
+        who = self.tracker.who_did_not_read(self.page,
+                                            deadline_before=deadline)
+        self.assertEqual(sorted(who.keys()), [])
+        who = self.tracker.who_did_not_read(self.page,
+                                            force_deadline=True,
+                                            deadline_before=deadline)
+        self.assertEqual(sorted(who.keys()), ['user2'])
+
+    def test_who_did_not_read_mustread(self):
+        """usecase: find out who still has to read an object"""
+
         custom_deadline = datetime.datetime(2017, 12, 31, 23, 00)
         self.tracker.schedule_must_read(self.page, ['user1', 'user2'],
                                         self.deadline)
         self.tracker.schedule_must_read(self.page, ['user3'],
                                         custom_deadline)
-
         self.tracker.schedule_must_read(self.page1, ['user2', 'user3'],
                                         self.deadline)
 
-        who = self.tracker.who_must_read(self.page)
+        who = self.tracker.who_did_not_read(self.page)
         self.assertEqual(sorted(who.keys()), ['user1', 'user2', 'user3'])
         self.assertEqual(who['user1'], self.deadline)
         self.assertEqual(who['user2'], self.deadline)
         self.assertEqual(who['user3'], custom_deadline)
 
-        # after user1 read the page, he is not listed in who_must_read anymore
+        # after user1 read the page, he is not listed anymore
         self.tracker.mark_read(self.page, 'user1', self.read_at)
-        who = self.tracker.who_must_read(self.page)
+        who = self.tracker.who_did_not_read(self.page)
         self.assertEqual(sorted(who.keys()), ['user2', 'user3'])
 
-        who = self.tracker.who_must_read(self.page1)
+        who = self.tracker.who_did_not_read(self.page1)
         self.assertEqual(sorted(who.keys()), ['user2', 'user3'])
 
-        who = self.tracker.who_must_read(self.page2)
+        who = self.tracker.who_did_not_read(self.page2)
         self.assertEqual(who.keys(), [])
 
     def test_what_to_read(self):
@@ -324,6 +412,17 @@ class TestTrackerScheduled(FunctionalBaseTestCase):
         self.assertEqual(to_read, [])
         to_read = self.tracker.what_to_read(context=self.folder,
                                             userid='user3')
+        self.assertEqual(to_read, [self.page1])
+
+        # filter for deadline
+        to_read = self.tracker.what_to_read(context=self.folder,
+                                            userid='user3',
+                                            deadline_before=self.deadline)
+        self.assertEqual(to_read, [])
+        after_deadline = self.deadline + datetime.timedelta(1)
+        to_read = self.tracker.what_to_read(context=self.folder,
+                                            userid='user3',
+                                            deadline_before=after_deadline)
         self.assertEqual(to_read, [self.page1])
 
     def test_get_report(self):
