@@ -158,9 +158,11 @@ class Tracker(object):
         else:
             query = query.filter(MustRead.status == 'mustread')
 
+        path = '/'.join(api.portal.get().getPhysicalPath())
         if context is not None:
             path = '/'.join(context.getPhysicalPath())
-            query = query.filter(MustRead.path.startswith(path))
+        query = query.filter(MustRead.path.startswith(path))
+
         if userid is not None:
             query = query.filter(MustRead.userid == unicode(userid))
         if deadline_before:
