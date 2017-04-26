@@ -2,9 +2,9 @@
    If you want to learn more about writing documentation, please check out: http://docs.plone.org/about/documentation_styleguide.html
    This text does not appear on pypi or github. It is a comment.
 
-==============================================================================
+===================
 collective.mustread
-==============================================================================
+===================
 
 Track reads on content objects in Plone.
 
@@ -68,7 +68,20 @@ Database
 
 The database storage provides a rich API as specified in ``collective.mustread.interfaces.ITracker``.
 
-Note that the API design already contains specifications for some future extensions that have not been implemented yet.
+By default collective.mustread writes to an in-memory sqlite database.
+Data will be lost on zope-server restarts.
+
+To persist your data you can use a sqlite-database-file.
+
+* Either run the `database` setup profile
+
+* or set up your database manually, e.g. to share it with other addons - see `Auditlog compatibility`_
+
+
+Auditlog compatibility
+''''''''''''''''''''''
+
+If you're running ``collective.auditlog`` on your site, you might consider using the same database (so you only need one active database-connector)
 
 The SQL store is derived from the ``collective.auditlog`` implementation.
 We've designed ``collective.mustread`` to be compatible with ``collective.auditlog`` to the point where we'll even re-use the database connector from auditlog if possible.
@@ -93,7 +106,7 @@ The behaviors provide a flex point where you can implement different tracking po
 View
 ----
 
-A helper view ``@mustread-hit`` is available for all ``ITrackReadEnabledMarker`` i.e. all objects with the ``ITrackReadEnabled`` behavior activated. Hitting that view will store a read record in the database for the content object.
+A helper view ``@@mustread-hit`` is available for all ``ITrackReadEnabledMarker`` i.e. all objects with the ``ITrackReadEnabled`` behavior activated. Hitting that view will store a read record in the database for the content object.
 
 In Quaive we will hit this view from our async stack.
 
