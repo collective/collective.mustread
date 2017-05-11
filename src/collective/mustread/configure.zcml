@@ -24,15 +24,6 @@
       />
 
   <genericsetup:registerProfile
-      name="database"
-      title="collective.mustread Database"
-      directory="profiles/database"
-      description="Creates a sqlite database file and configures it in the registry"
-      provides="Products.GenericSetup.interfaces.EXTENSION"
-      post_handler=".setuphandlers.initialize_mustread_db"
-      />
-
-  <genericsetup:registerProfile
       name="uninstall"
       title="collective.mustread (uninstall)"
       directory="profiles/uninstall"

@@ -73,9 +73,10 @@ Data will be lost on zope-server restarts.
 
 To persist your data you can use a sqlite-database-file.
 
-* Either run the `database` setup profile
+* Either call the `@@init-mustread-db` view (to create a sqlite db located in BUILDOUT/var/mustread.db)
 
-* or set up your database manually, e.g. to share it with other addons - see `Auditlog compatibility`_
+* or set up your database path manually in the registry and call the `@@init-mustread-db` view after that
+  ( e.g. to share it with other addons - see `Auditlog compatibility`_)
 
 
 Auditlog compatibility
@@ -87,6 +88,9 @@ The SQL store is derived from the ``collective.auditlog`` implementation.
 We've designed ``collective.mustread`` to be compatible with ``collective.auditlog`` to the point where we'll even re-use the database connector from auditlog if possible.
 
 The database connection is configured via a registry record ``collective.mustread.interfaces.IMustReadSettings``. You typically want this to contain the same value as your auditlog configuration.
+
+Make sure to call `@@init-mustread-db` to create the necessary tables/columns needed by this package in the database.
+
 
 Behaviors
 ---------

@@ -16,7 +16,7 @@ Changelog
   This required new database columns. The provided upgrade step works for sqlite databases
   but might need changes for mysql or postgres. [fRiSi]
 
-- Allow to create and configure a database file by installing the `database` setup profile
+- Allow to create and configure a database file by using the `@@init-mustread-db` view
   [fRiSI]
 
 

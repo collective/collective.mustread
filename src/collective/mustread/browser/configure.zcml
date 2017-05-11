@@ -19,5 +19,13 @@
       permission="zope2.View"
       layer="..interfaces.ICollectiveMustreadLayer"
       />
-  
+
+  <browser:page
+      for="*"
+      name="init-mustread-db"
+      class=".init_db.InitView"
+      layer="..interfaces.ICollectiveMustreadLayer"
+      permission="cmf.ManagePortal"
+      />
+
 </configure>
