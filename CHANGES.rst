@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.1.0 (unreleased)
+1.1.0 (2017-05-11)
 ------------------
 
 - Added the possibility to specify engine parameters through the registry
