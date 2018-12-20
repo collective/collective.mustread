@@ -19,7 +19,6 @@
       title="Maybe Must Read"
       description="Per-content object choice whether this object MUST be read"
       provides=".maybe.IMaybeMustRead"
-      for="plone.dexterity.interfaces.IDexterityContent"
       />
   
 </configure>
