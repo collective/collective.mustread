@@ -4,7 +4,6 @@ from collective.mustread import td
 from collective.mustread import utils
 from collective.mustread.interfaces import ITracker
 from collective.mustread.models import MustRead
-
 from datetime import datetime
 from datetime import timedelta
 from plone import api
@@ -16,6 +15,8 @@ from zope.interface import implementer
 
 import csv
 import logging
+
+
 log = logging.getLogger(__name__)
 
 
