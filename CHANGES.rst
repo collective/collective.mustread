@@ -5,7 +5,8 @@ Changelog
 1.1.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Do not break on the upgrade step that adds columns to the mustread table
+  [ale-rt]
 
 
 1.1.0 (2017-05-11)
