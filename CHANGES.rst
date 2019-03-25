@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.1.1 (unreleased)
+1.1.1 (2019-03-25)
 ------------------
 
 - Do not break on the upgrade step that adds columns to the mustread table
