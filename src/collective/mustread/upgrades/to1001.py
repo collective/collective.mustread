@@ -32,9 +32,15 @@ def update_dbschema(context):
         logger.warn('database migration is only tested for sqlite databases')
 
     engine = db.getEngine()
-    engine.execute(
-        'ALTER TABLE mustread ADD column scheduled_by VARCHAR(255);')
-    engine.execute('ALTER TABLE mustread ADD column scheduled_at DATETIME;')
+    for statement in (
+        'ALTER TABLE mustread ADD column scheduled_by VARCHAR(255);',
+        'ALTER TABLE mustread ADD column scheduled_at DATETIME;'
+    ):
+        try:
+            engine.execute(statement)
+        except Exception:
+            logger.exception('Failed to execute %r', statement)
+
     # drop column is not supported by sqlite
     # we'd need to rename and copy the database
     # (see http://stackoverflow.com/a/10581330/810427)
