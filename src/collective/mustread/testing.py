@@ -21,7 +21,7 @@ from plone.behavior.interfaces import IBehavior
 from plone.behavior.interfaces import IBehaviorAssignable
 from plone.dexterity.interfaces import IDexterityContent
 from plone.registry.interfaces import IRegistry
-from plone.testing import z2
+from plone.testing import zope as zope_testing
 from tempfile import mkstemp
 from zope.component import adapter
 from zope.component import getUtility
@@ -86,7 +86,7 @@ COLLECTIVE_MUSTREAD_ACCEPTANCE_TESTING = FunctionalTesting(
     bases=(
         COLLECTIVE_MUSTREAD_FIXTURE,
         REMOTE_LIBRARY_BUNDLE_FIXTURE,
-        z2.ZSERVER_FIXTURE
+        zope_testing.WSGI_SERVER_FIXTURE
     ),
     name='CollectiveMustreadLayer:AcceptanceTesting'
 )
