@@ -25,15 +25,23 @@ def getEngine(conn_string=None, conn_parameters=None, req=None):
     else:
         registry = getUtility(IRegistry)
         if conn_string is None:
-            conn_string = registry['collective.mustread.interfaces.IMustReadSettings.connectionstring']  # noqa
+            conn_string = registry[
+                'collective.mustread.interfaces.IMustReadSettings.connectionstring'  # noqa: E501
+            ]
         try:
-            audit_conn_string = registry['collective.auditlog.interfaces.IAuditLogSettings.connectionstring']  # noqa
+            audit_conn_string = registry[
+                'collective.auditlog.interfaces.IAuditLogSettings.connectionstring'  # noqa: E501
+            ]
         except KeyError:
             audit_conn_string = None
         if conn_parameters is None:
-            conn_parameters = registry['collective.mustread.interfaces.IMustReadSettings.connectionparameters']  # noqa
+            conn_parameters = registry[
+                'collective.mustread.interfaces.IMustReadSettings.connectionparameters'  # noqa: E501
+            ]
         try:
-            audit_conn_parameters = registry['collective.auditlog.interfaces.IAuditLogSettings.connectionparameters']  # noqa
+            audit_conn_parameters = registry[
+                'collective.auditlog.interfaces.IAuditLogSettings.connectionparameters'  # noqa: E501
+            ]
         except KeyError:
             audit_conn_parameters = None
 
