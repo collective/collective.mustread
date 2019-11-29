@@ -7,7 +7,6 @@ buildout: bin/buildout
 bin/buildout:
 	virtualenv .
 	bin/pip install -r requirements.txt
-	bin/buildout bootstrap
 
 clean:
 	rm -rf bin/* lib/*

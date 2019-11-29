@@ -20,6 +20,13 @@ Features
 - List top-x of content objects by user reads in a specific time window
 
 
+Compatibility
+-------------
+
+Plone 5.2 users should use version 2.x of collective.mustread.
+Plone 5.1 and Plone 5.0 users should use version 1.x of collective.mustread.
+
+
 Limitations
 -----------
 

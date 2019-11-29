@@ -363,7 +363,7 @@ class TestTrackerScheduled(FunctionalBaseTestCase):
                                         self.deadline)
 
         who = self.tracker.who_did_not_read(self.page)
-        self.assertEqual(sorted(who.keys()), ['user1', 'user2', 'user3'])
+        self.assertEqual(sorted(who), ['user1', 'user2', 'user3'])
         self.assertEqual(who['user1'], self.deadline)
         self.assertEqual(who['user2'], self.deadline)
         self.assertEqual(who['user3'], custom_deadline)
@@ -371,13 +371,13 @@ class TestTrackerScheduled(FunctionalBaseTestCase):
         # after user1 read the page, he is not listed anymore
         self.tracker.mark_read(self.page, 'user1', self.read_at)
         who = self.tracker.who_did_not_read(self.page)
-        self.assertEqual(sorted(who.keys()), ['user2', 'user3'])
+        self.assertEqual(sorted(who), ['user2', 'user3'])
 
         who = self.tracker.who_did_not_read(self.page1)
-        self.assertEqual(sorted(who.keys()), ['user2', 'user3'])
+        self.assertEqual(sorted(who), ['user2', 'user3'])
 
         who = self.tracker.who_did_not_read(self.page2)
-        self.assertEqual(who.keys(), [])
+        self.assertEqual(list(who), [])
 
     def test_what_to_read(self):
         self.tracker.schedule_must_read(self.page, ['user1', 'user2'],

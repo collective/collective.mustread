@@ -8,6 +8,7 @@ from zope.component import getUtility
 from zope.globalrequest import getRequest
 
 import logging
+import six
 
 
 log = logging.getLogger(__name__)
@@ -46,7 +47,7 @@ def getEngine(conn_string=None, conn_parameters=None, req=None):
         else:
             if not conn_parameters:
                 conn_parameters = {}
-            elif isinstance(conn_parameters, basestring):
+            elif isinstance(conn_parameters, six.string_types):
                 conn_parameters = loads(conn_parameters)
             engine = create_engine(conn_string, **conn_parameters)
             if 'memory' in conn_string:
