@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Setup tests for this package."""
-from collective.mustread.testing import COLLECTIVE_MUSTREAD_INTEGRATION_TESTING  # noqa
+from collective.mustread.testing import COLLECTIVE_MUSTREAD_INTEGRATION_TESTING
 from Products.CMFPlone.utils import get_installer
 
 import unittest
