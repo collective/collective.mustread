@@ -19,6 +19,15 @@
       destination="1001"
       title="add new columns to database schema"
       profile="collective.mustread:default"
-      handler=".to1001.update_dbschema" />
+      handler=".to1001.update_dbschema"
+      />
+
+  <genericsetup:upgradeStep
+      source="1001"
+      destination="1002"
+      title="Switch to named behaviors"
+      profile="collective.mustread:default"
+      handler=".to1002.move_dotted_to_named_behaviors"
+      />
 
  </configure>

@@ -104,9 +104,9 @@ Behaviors
 
 We provide two behaviors:
 
-- ``IMaybeMustRead`` basically only provides a checkbox where you can specify whether a content object is 'must-read'.
+- ``collective.mustread.maybe_must_read`` basically only provides a checkbox where you can specify whether a content object is 'must-read'.
 
-- ``ITrackReadEnabled`` activates view tracking on a content object. We track views even if ``IMaybeMustRead`` does not mark the object as 'must-read'. The reason for this is we'd like to track popular content even if the items are not compulsory.
+- ``collective.mustread.track_read_enabled`` activates view tracking on a content object. We track views even if ``IMaybeMustRead`` does not mark the object as 'must-read'. The reason for this is we'd like to track popular content even if the items are not compulsory.
 
 You'd typically activate both these behaviors on the content types you'd like to track.
 
@@ -117,7 +117,7 @@ The behaviors provide a flex point where you can implement different tracking po
 View
 ----
 
-A helper view ``@@mustread-hit`` is available for all ``ITrackReadEnabledMarker`` i.e. all objects with the ``ITrackReadEnabled`` behavior activated. Hitting that view will store a read record in the database for the content object.
+A helper view ``@@mustread-hit`` is available for all ``ITrackReadEnabledMarker`` i.e. all objects with the ``collective.mustread.track_read_enabled`` behavior activated. Hitting that view will store a read record in the database for the content object.
 
 In Quaive we will hit this view from our async stack.
 
@@ -155,7 +155,7 @@ The minimal steps required to actually use ``collective.mustread`` in your own p
 
 1. Install ``collective.mustread`` and configure a database connector. The default connector is a in-memory database which is not suitable for production.
 
-2. Activate the ``IMaybeMustRead`` and ``ITrackReadEnabled`` behaviors on the content types you'd like to track, via GenericSetup. Or roll your own custom behaviors.
+2. Activate the ``collective.mustread.maybe_must_read`` and ``collective.mustread.track_read_enabled`` behaviors on the content types you'd like to track, via GenericSetup. Or roll your own custom behaviors.
 
 3. For these content types, hit ``${context/absolute_url}/@@mustread-hit`` when viewing the content. Ideally you'll use some kind of async queue at this stage.
 
