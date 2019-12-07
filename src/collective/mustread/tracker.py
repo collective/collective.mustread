@@ -265,7 +265,7 @@ class Tracker(object):
                 yield record
         except Exception as exc:
             req = getRequest()
-            log.error('Query error on %s', req.environ['mustread.engine'])
+            log.exception('Query error on %s', req.environ['mustread.engine'])
             raise exc
 
     def _get_session(self):
