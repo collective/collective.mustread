@@ -44,4 +44,5 @@ class InitView(BrowserView):
         logger.info('Initializing SQL db: %s' % record)
         session = getSession()
         Base.metadata.create_all(session.bind.engine)
+        logger.info('Finished initializing SQL db: %s' % record)
         return 'configured db: ' + record

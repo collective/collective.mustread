@@ -5,6 +5,7 @@ Changelog
 2.0.0 (unreleased)
 ------------------
 
+- Indicate end of database initialization in logs [thet]
 - Support Plone 5.2 and Python2.7, Python 3.6 and Python 3.7 [ale-rt, thet]
 
 
