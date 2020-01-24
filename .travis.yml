@@ -5,6 +5,7 @@ cache:
   - downloads
 python:
   - 2.7
+  - 3.6
   - 3.7
 matrix:
   fast_finish: true
