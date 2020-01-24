@@ -21,7 +21,6 @@ from plone.behavior.interfaces import IBehavior
 from plone.behavior.interfaces import IBehaviorAssignable
 from plone.dexterity.interfaces import IDexterityContent
 from plone.registry.interfaces import IRegistry
-from plone.testing import zope as zope_testing
 from tempfile import mkstemp
 from zope.component import adapter
 from zope.component import getUtility
@@ -33,6 +32,11 @@ import collective.mustread
 import os
 import unittest
 
+
+try:
+    from plone.testing.zope import WSGI_SERVER_FIXTURE
+except ImportError:
+    from plone.testing.z2 import ZSERVER_FIXTURE as WSGI_SERVER_FIXTURE
 
 # http://docs.plone.org/external/plone.app.dexterity/docs/behaviors/testing-behaviors.html
 @adapter(IDexterityContent)
@@ -86,7 +90,7 @@ COLLECTIVE_MUSTREAD_ACCEPTANCE_TESTING = FunctionalTesting(
     bases=(
         COLLECTIVE_MUSTREAD_FIXTURE,
         REMOTE_LIBRARY_BUNDLE_FIXTURE,
-        zope_testing.WSGI_SERVER_FIXTURE
+        WSGI_SERVER_FIXTURE
     ),
     name='CollectiveMustreadLayer:AcceptanceTesting'
 )
