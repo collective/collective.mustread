@@ -8,6 +8,7 @@ from zope.component import getUtility
 from zope.globalrequest import getRequest
 
 import logging
+import six
 
 
 log = logging.getLogger(__name__)
@@ -24,15 +25,23 @@ def getEngine(conn_string=None, conn_parameters=None, req=None):
     else:
         registry = getUtility(IRegistry)
         if conn_string is None:
-            conn_string = registry['collective.mustread.interfaces.IMustReadSettings.connectionstring']  # noqa
+            conn_string = registry[
+                'collective.mustread.interfaces.IMustReadSettings.connectionstring'  # noqa: E501
+            ]
         try:
-            audit_conn_string = registry['collective.auditlog.interfaces.IAuditLogSettings.connectionstring']  # noqa
+            audit_conn_string = registry[
+                'collective.auditlog.interfaces.IAuditLogSettings.connectionstring'  # noqa: E501
+            ]
         except KeyError:
             audit_conn_string = None
         if conn_parameters is None:
-            conn_parameters = registry['collective.mustread.interfaces.IMustReadSettings.connectionparameters']  # noqa
+            conn_parameters = registry[
+                'collective.mustread.interfaces.IMustReadSettings.connectionparameters'  # noqa: E501
+            ]
         try:
-            audit_conn_parameters = registry['collective.auditlog.interfaces.IAuditLogSettings.connectionparameters']  # noqa
+            audit_conn_parameters = registry[
+                'collective.auditlog.interfaces.IAuditLogSettings.connectionparameters'  # noqa: E501
+            ]
         except KeyError:
             audit_conn_parameters = None
 
@@ -46,7 +55,7 @@ def getEngine(conn_string=None, conn_parameters=None, req=None):
         else:
             if not conn_parameters:
                 conn_parameters = {}
-            elif isinstance(conn_parameters, basestring):
+            elif isinstance(conn_parameters, six.string_types):
                 conn_parameters = loads(conn_parameters)
             engine = create_engine(conn_string, **conn_parameters)
             if 'memory' in conn_string:

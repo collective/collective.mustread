@@ -3,11 +3,11 @@ from plone.uuid.interfaces import IUUID
 
 
 def getUID(context):
-    uid = IUUID(context, None)  # noqa
+    uid = IUUID(context, None)  # noqa: P001
     if uid is not None:
         return uid
 
-    if hasattr(context, 'UID'):
+    if hasattr(context, 'UID'):  # noqa: P002
         return context.UID()
 
     try:

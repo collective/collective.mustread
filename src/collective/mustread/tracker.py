@@ -165,7 +165,7 @@ class Tracker(object):
         query = query.filter(MustRead.path.startswith(path))
 
         if userid is not None:
-            query = query.filter(MustRead.userid == unicode(userid))
+            query = query.filter(MustRead.userid == safe_unicode(userid))
         if deadline_before:
             query = query.filter(MustRead.deadline < deadline_before)
         query = query.order_by(MustRead.path)
@@ -211,7 +211,7 @@ class Tracker(object):
                 MustRead.read_at >= start_date.date()))
 
         if userid:
-            query = query.filter(MustRead.userid == unicode(userid))
+            query = query.filter(MustRead.userid == safe_unicode(userid))
         if include_children:
             query = query.filter(MustRead.path.startswith(path))
         else:
@@ -222,8 +222,8 @@ class Tracker(object):
         for item in query.all():
             # remove sqlalchemy specific data
             # (see discussion at http://stackoverflow.com/q/1958219/810427)
-            yield dict([(k, v) for k, v in item.__dict__.iteritems()
-                        if not k.startswith('_')])
+            item_dict = item.__dict__
+            yield {k: item_dict[k] for k in item_dict if not k.startswith('_')}
 
     def get_report_csv(self, csvfile, context=None, include_children=True,
                        fieldnames=[]):
@@ -263,7 +263,7 @@ class Tracker(object):
         try:
             for record in query.all():
                 yield record
-        except Exception, exc:
+        except Exception as exc:
             req = getRequest()
             log.error('Query error on %s', req.environ['mustread.engine'])
             raise exc

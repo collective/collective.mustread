@@ -12,7 +12,7 @@ from zope.interface.verify import verifyObject
 class TestMaybeMustRead(FunctionalBaseTestCase):
 
     def test_installed(self):
-        name = 'collective.mustread.behaviors.maybe.IMaybeMustRead'
+        name = 'collective.mustread.maybe_must_read'
         behavior = getUtility(IBehavior, name=name)
         self.assertEqual(behavior.interface, IMaybeMustRead)
         self.assertTrue(IFormFieldProvider.providedBy(behavior.interface))
@@ -31,7 +31,7 @@ class TestMaybeMustRead(FunctionalBaseTestCase):
 class TestTrackReadEnabled(FunctionalBaseTestCase):
 
     def test_installed(self):
-        name = 'collective.mustread.behaviors.track.ITrackReadEnabled'
+        name = 'collective.mustread.track_read_enabled'
         behavior = getUtility(IBehavior, name=name)
         self.assertEqual(behavior.interface, ITrackReadEnabled)
 
