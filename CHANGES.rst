@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-2.0.0 (unreleased)
+2.0.0 (2020-01-27)
 ------------------
 
 - Indicate end of database initialization in logs [thet]
