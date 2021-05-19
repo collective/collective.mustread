@@ -5,7 +5,8 @@ Changelog
 2.0.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- The ``most_read`` method does not break when trying to fetch objects
+  that the user cannot view. Fixes #14 [ale-rt]
 
 
 2.0.0 (2020-01-27)
