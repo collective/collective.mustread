@@ -99,7 +99,12 @@ class Tracker(object):
                      .order_by(func.count(MustRead.userid).desc())\
                      .limit(limit)
         for record in self.query_all(query):
-            yield api.content.get(UID=record.uid)
+            try:
+                obj = api.content.get(UID=record.uid)
+            except Exception:
+                obj = None
+            if obj is not None:
+                yield obj
 
     def schedule_must_read(self, obj, userids, deadline, by=None):
         path = '/'.join(obj.getPhysicalPath())

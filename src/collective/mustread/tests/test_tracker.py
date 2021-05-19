@@ -117,6 +117,14 @@ class TestTrackerTrending(FunctionalBaseTestCase):
         expect = [x[1] for x in sorted(self.pages, reverse=True)]
         self.assertEqual(result, expect)
 
+    def test_most_read_does_not_choke_with_private_objects(self):
+        for (i, page) in self.pages:
+            for y in range(i):  # page01 1 read, page02 2 reads, etc
+                self.tracker.mark_read(page, userid='user%02d' % (y + 1))
+        logout()
+        result = list(self.tracker.most_read())
+        self.assertListEqual(result, [])
+
     def test_most_read_applies_status_filter(self):
         for (i, page) in self.pages:
             if not i % 2:  # only read even pages
