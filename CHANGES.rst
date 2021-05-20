@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-2.0.1 (unreleased)
+2.0.1 (2021-05-20)
 ------------------
 
 - The ``most_read`` method does not break when trying to fetch objects
