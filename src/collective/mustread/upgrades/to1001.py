@@ -29,7 +29,9 @@ def update_dbschema(context):
     record = api.portal.get_registry_record(
         'collective.mustread.interfaces.IMustReadSettings.connectionstring')
     if record and not record.startswith('sqlite://'):
-        logger.warn('database migration is only tested for sqlite databases')
+        logger.warning(
+            "database migration is only tested for sqlite databases"
+        )
 
     engine = db.getEngine()
     for statement in (

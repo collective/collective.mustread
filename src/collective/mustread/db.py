@@ -59,7 +59,7 @@ def getEngine(conn_string=None, conn_parameters=None, req=None):
                 conn_parameters = loads(conn_parameters)
             engine = create_engine(conn_string, **conn_parameters)
             if 'memory' in conn_string:
-                log.warn(
+                log.warning(
                     'Running a in-memory database is NOT recommended '
                     'for production. Please check the registry setting '
                     'collective.mustread.interfaces.IMustReadSettings.')
