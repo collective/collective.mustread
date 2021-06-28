@@ -37,7 +37,7 @@ class InitView(BrowserView):
         if not record or 'memory' in record:
             dbpath = '%s/var/mustread.db' % os.getcwd()
             record = u'sqlite:///%s' % dbpath
-            logger.warn(
+            logger.warning(
                 'SQL storage not properly configured. Forcing: %s', record)
             api.portal.set_registry_record(
                 'connectionstring', record, interface=IMustReadSettings)

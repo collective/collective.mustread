@@ -5,7 +5,7 @@ Changelog
 2.0.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix a deprecation warning [ale-rt]
 
 
 2.0.1 (2021-05-20)
