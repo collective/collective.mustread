@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-2.0.2 (unreleased)
+2.0.2 (2021-06-28)
 ------------------
 
 - Fix a deprecation warning [ale-rt]
