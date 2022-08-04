@@ -154,6 +154,24 @@ class ITracker(Interface):
         :rtype: List
         '''
 
+    def get_most_read_query(days=None, limit=None):
+        '''Query the most read rows.
+
+        Returns a query object, sorting is operated on the number of
+        unique users who have read that object, in descending order
+        of user count.
+
+        Considers only the last <days> if given.
+        Limits the result set to <limit> objects if given.
+
+        :param days: Number of days before now to consider.
+        :type days: int
+        :param limit: Number of content objects to return
+        :type limit: int
+        :returns: a query object
+        :rtype: sqlalchemy.orm.query.Query
+        '''
+
     def most_read(days=None, limit=None):
         '''Query which content objects have been read most.
 

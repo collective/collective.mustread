@@ -2,10 +2,12 @@ Changelog
 =========
 
 
-2.0.3 (unreleased)
+2.1.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Added a new ``get_most_read_query`` method to the tracker to help integrators
+  Refs. #17
+  [ale-rt]
 
 
 2.0.2 (2021-06-28)
