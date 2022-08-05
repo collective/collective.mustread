@@ -87,17 +87,21 @@ class Tracker(object):
         query = self._read(**query_filter)
         return [x.userid for x in self.query_all(query)]
 
-    def most_read(self, days=None, limit=None):
+    def get_most_read_query(self, days=None, limit=None):
         session = self._get_session()
-        query = session.query(MustRead.uid,
-                              func.count(MustRead.userid))
+        query = session.query(MustRead.uid, func.count(MustRead.userid))
         if days:
             read_at = datetime.utcnow() - timedelta(days=days)
             query = query.filter(MustRead.read_at >= read_at)
-        query = query.filter(MustRead.status == 'read')\
-                     .group_by(MustRead.uid)\
-                     .order_by(func.count(MustRead.userid).desc())\
-                     .limit(limit)
+        return (
+            query.filter(MustRead.status == "read")
+            .group_by(MustRead.uid)
+            .order_by(func.count(MustRead.userid).desc())
+            .limit(limit)
+        )
+
+    def most_read(self, days=None, limit=None):
+        query = self.get_most_read_query(days=days, limit=limit)
         for record in self.query_all(query):
             try:
                 obj = api.content.get(UID=record.uid)
