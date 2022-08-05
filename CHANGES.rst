@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-2.1.0 (unreleased)
+2.1.0 (2022-08-05)
 ------------------
 
 - Added a new ``get_most_read_query`` method to the tracker to help integrators
