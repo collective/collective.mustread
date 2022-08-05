@@ -14,7 +14,7 @@ long_description = '\n\n'.join([
 
 setup(
     name='collective.mustread',
-    version='2.1.0',
+    version='2.1.1.dev0',
     description="Tracking user views on content items marked as must-read",
     long_description=long_description,
     # Get more from https://pypi.org/classifiers/
