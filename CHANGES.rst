@@ -5,7 +5,7 @@ Changelog
 2.1.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Make the test pass on Plone6
 
 
 2.1.0 (2022-08-05)

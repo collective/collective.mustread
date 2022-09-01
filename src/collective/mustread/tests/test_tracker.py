@@ -6,6 +6,7 @@ from collective.mustread.tracker import Tracker
 from plone import api
 from plone.app.testing import logout
 from plone.app.testing import TEST_USER_ID
+from Products.CMFCore.indexing import processQueue
 from zope.component import getUtility
 from zope.interface.verify import verifyObject
 
@@ -108,6 +109,8 @@ class TestTrackerTrending(FunctionalBaseTestCase):
                                              title='Page %02d' % i,
                                              container=self.portal))
                       for i in range(1, 10)]
+        processQueue()
+
 
     def test_most_read(self):
         for (i, page) in self.pages:
