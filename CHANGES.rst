@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-2.1.1 (unreleased)
+2.2.0 (2022-10-04)
 ------------------
 
 - Make the test pass on Plone6
