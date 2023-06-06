@@ -5,7 +5,7 @@ Changelog
 2.2.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Remove deprecated code.
 
 
 2.2.0 (2022-10-04)
