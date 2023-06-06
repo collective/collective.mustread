@@ -7,7 +7,6 @@ from collective.mustread.models import MustRead
 from datetime import datetime
 from datetime import timedelta
 from plone import api
-from Products.CMFPlone.utils import safe_unicode
 from sqlalchemy import func
 from sqlalchemy import or_
 from zope.globalrequest import getRequest
@@ -15,6 +14,17 @@ from zope.interface import implementer
 
 import csv
 import logging
+
+try:
+    from plone.base.utils import safe_text
+except ImportError:
+    try:
+        # Plone 5.2
+        from Products.CMFPlone.utils import safe_text
+    except ImportError:
+        # Plone 5.1
+        from Products.CMFPlone.utils import safe_unicode as safe_text
+
 
 
 log = logging.getLogger(__name__)
@@ -174,7 +184,7 @@ class Tracker(object):
         query = query.filter(MustRead.path.startswith(path))
 
         if userid is not None:
-            query = query.filter(MustRead.userid == safe_unicode(userid))
+            query = query.filter(MustRead.userid == safe_text(userid))
         if deadline_before:
             query = query.filter(MustRead.deadline < deadline_before)
         query = query.order_by(MustRead.path)
@@ -220,7 +230,7 @@ class Tracker(object):
                 MustRead.read_at >= start_date.date()))
 
         if userid:
-            query = query.filter(MustRead.userid == safe_unicode(userid))
+            query = query.filter(MustRead.userid == safe_text(userid))
         if include_children:
             query = query.filter(MustRead.path.startswith(path))
         else:
@@ -289,5 +299,5 @@ class Tracker(object):
         for key in data:
             value = data[key]
             if isinstance(value, str):
-                data[key] = safe_unicode(value)
+                data[key] = safe_text(value)
         return data
